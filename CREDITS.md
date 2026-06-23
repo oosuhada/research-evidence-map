@@ -1,31 +1,40 @@
-# Credits & references
+# Credits and licenses
 
-No commercial template code was copied. The prototypes are original implementations informed by the interaction principles of the references below.
+Signal Garden uses open-source packages as implementation primitives. No paid marketplace template or unlicensed component code is copied into this repository.
 
-## Open-source packages
+## React Flow / xyflow
 
-- React — https://github.com/facebook/react — MIT
-- Vite — https://github.com/vitejs/vite — MIT
-- Tailwind CSS — https://github.com/tailwindlabs/tailwindcss — MIT
-- Motion — https://github.com/motiondivision/motion — MIT
-- Three.js — https://github.com/mrdoob/three.js — MIT
-- React Three Fiber — https://github.com/pmndrs/react-three-fiber — MIT
-- Drei — https://github.com/pmndrs/drei — MIT
-- React Flow / XYFlow — https://github.com/xyflow/xyflow — MIT
-- Lucide — https://github.com/lucide-icons/lucide — ISC
-- Zustand — https://github.com/pmndrs/zustand — MIT
+- Repository: https://github.com/xyflow/xyflow
+- Author / steward: webkid GmbH and contributors
+- License: MIT
+- Use: infinite evidence field, draggable nodes, pan/zoom, minimap, and source-to-insight connectors. The product-specific node rendering, layouts, and art direction are original to this prototype.
 
-## Visual / interaction references
+## d3-force
 
-- Framer Mascot 3D — https://www.framer.com/community/marketplace/components/mascot-3d/
-- Framer Viscous3DOrb — https://www.framer.com/marketplace/components/viscous3dorb/
-- Framer Metalmorphism — https://www.framer.com/marketplace/components/metalmorphism/
-- HTML-in-Canvas demos — https://html-in-canvas.dev/demos/
-- Liquid Glass demo — https://html-in-canvas.dev/demos/liquid-glass/
-- 3D Room / Live Content — https://html-in-canvas.dev/demos/3d-room-live-content/
-- CSS to Shader — https://html-in-canvas.dev/demos/css-to-shader/
-- Page Curl / Book Turn — https://html-in-canvas.dev/demos/page-curl-book-turn/
-- HTML-in-Canvas source — https://github.com/en-dash-consulting/html-in-canvas-dot-dev
-- tldraw — https://github.com/tldraw/tldraw — Apache-2.0 (reference only; not bundled)
+- Repository: https://github.com/d3/d3-force
+- Author: Mike Bostock and contributors
+- License: ISC
+- Use: deterministic force-directed placement of source evidence around semantic cluster centers.
 
-The HTML-in-Canvas project is referenced as a conceptual direction only. Core application behavior uses normal DOM/WebGL rendering and does not depend on experimental browser features.
+## Rough.js
+
+- Repository: https://github.com/rough-stuff/rough
+- Author: Preet Shihn and contributors
+- License: MIT
+- Use: hand-rendered proof circles, strike-through marks, and editorial annotations that communicate assumptions and contradiction.
+
+## Motion
+
+- Repository: https://github.com/motiondivision/motion
+- Authors: Motion contributors
+- License: MIT
+- Use: evidence-ledger transitions and restrained state motion.
+
+## Lucide
+
+- Repository: https://github.com/lucide-icons/lucide
+- Authors: Lucide contributors
+- License: ISC
+- Use: interface iconography.
+
+No source code from the original reference sites was copied. Their visual ideas were treated as directional references only.
