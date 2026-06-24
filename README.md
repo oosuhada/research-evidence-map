@@ -11,10 +11,20 @@ Signal Garden is intentionally an editorial research instrument rather than a Sa
 - Deterministic AI analysis that streams raw sources into the field map.
 - `d3-force` clustering for the source evidence seeds.
 - React Flow pan, zoom, drag, and source-to-insight traceability.
-- Rough.js proof marks for assumptions and contradictory evidence.
+- Rough.js proof marks plus density-scaled hand-drawn cluster canopies.
 - Evidence ledger with source provenance and a streaming challenge response.
 - Manual merge/split cluster controls.
-- Reduced-motion and responsive mobile layouts.
+- Automatic ECO mode for low-memory/low-core devices, reduced-motion, and responsive mobile layouts.
+
+## Visual reference adoption
+
+The required catalog is preserved verbatim at [`docs/visual-reference-catalog.md`](docs/visual-reference-catalog.md). The investigation, license decisions, prototypes, adopted code and rejected candidates are documented in [`docs/reference-adoption.md`](docs/reference-adoption.md).
+
+### Latest captures
+
+![Signal Garden desktop](./public/preview.png)
+
+![Signal Garden mobile](./public/preview-mobile.png)
 
 ## Run locally
 

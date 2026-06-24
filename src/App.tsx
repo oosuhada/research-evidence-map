@@ -140,6 +140,38 @@ function ProofMark({ kind }: { kind: 'circle' | 'underline' | 'strike' }) {
   return <svg className="proof-mark" ref={ref} viewBox="0 0 58 36" aria-hidden="true" />;
 }
 
+function ClusterCanopy({ label, evidenceCount }: { label: string; evidenceCount: number }) {
+  const ref = useRef<SVGSVGElement | null>(null);
+  const width = 188 + evidenceCount * 22;
+  const height = 126 + evidenceCount * 18;
+
+  useEffect(() => {
+    const svg = ref.current;
+    if (!svg) return;
+    svg.replaceChildren();
+    const rc = rough.svg(svg);
+    const canopy = rc.ellipse(width / 2, height / 2, width - 10, height - 10, {
+      stroke: '#6e7d63',
+      strokeWidth: 1.15,
+      roughness: 1.9,
+      bowing: 1.4,
+      fill: 'rgba(107, 131, 92, 0.045)',
+      fillStyle: 'hachure',
+      hachureGap: 18,
+      hachureAngle: -28,
+    });
+    svg.appendChild(canopy);
+  }, [height, width]);
+
+  return (
+    <div className="cluster-canopy" style={{ width, height }} aria-hidden="true">
+      <svg ref={ref} viewBox={`0 0 ${width} ${height}`} />
+      <span>{label}</span>
+      <b>{evidenceCount} SIGNAL{evidenceCount === 1 ? '' : 'S'}</b>
+    </div>
+  );
+}
+
 function SeedCard({ source, index }: { source: (typeof signalGardenSources)[number]; index: number }) {
   return (
     <article className="seed-card">
@@ -171,7 +203,13 @@ function InsightCard({ insight }: { insight: Insight }) {
 }
 
 function Garden() {
-  const reducedMotion = useReducedMotion();
+  const reducedMotion = Boolean(useReducedMotion());
+  const lowPower = useMemo(() => {
+    if (typeof navigator === 'undefined') return false;
+    const device = navigator as Navigator & { deviceMemory?: number };
+    return (device.hardwareConcurrency > 0 && device.hardwareConcurrency <= 4) || Boolean(device.deviceMemory && device.deviceMemory <= 4);
+  }, []);
+  const quietMotion = reducedMotion || lowPower;
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [phase, setPhase] = useState<'empty' | 'seeding' | 'growing' | 'complete'>('empty');
@@ -213,15 +251,31 @@ function Garden() {
     setPhase('seeding');
 
     for (let index = 0; index < signalGardenSources.length; index += 1) {
-      if (!reducedMotion) await new Promise((resolve) => window.setTimeout(resolve, 115));
+      if (!quietMotion) await new Promise((resolve) => window.setTimeout(resolve, 115));
       if (runId !== runRef.current) return;
       setNodes((current) => [...current, makeSourceNode(index)]);
     }
 
-    if (!reducedMotion) await new Promise((resolve) => window.setTimeout(resolve, 320));
+    if (!quietMotion) await new Promise((resolve) => window.setTimeout(resolve, 320));
     if (runId !== runRef.current) return;
     setPhase('growing');
+    const clusterNodes: Node[] = Object.entries(clusterCenters).map(([cluster, center]) => {
+      const count = signalGardenSources.filter((source) => source.cluster === cluster).length;
+      const width = 188 + count * 22;
+      const height = 126 + count * 18;
+      return {
+        id: `cluster-${cluster.toLowerCase().replaceAll(' ', '-')}`,
+        position: { x: center.x - width / 2 + 80, y: center.y - height / 2 + 40 },
+        data: { label: <ClusterCanopy label={cluster} evidenceCount={count} /> },
+        className: 'cluster-canopy-node',
+        style: { width, height, zIndex: -1 },
+        draggable: false,
+        selectable: false,
+        focusable: false,
+      };
+    });
     setNodes([
+      ...clusterNodes,
       ...signalGardenSources.map((_, index) => makeSourceNode(index, true)),
       ...insights.map((insight) => ({
         id: insight.id,
@@ -243,12 +297,12 @@ function Garden() {
       id: `e-${index}`,
       source,
       target,
-      animated: !reducedMotion && !contradictory,
+      animated: !quietMotion && !contradictory,
       className: contradictory ? 'proof-edge' : 'ink-edge',
       markerEnd: { type: MarkerType.ArrowClosed, width: 14, height: 14 },
     })));
 
-    if (!reducedMotion) await new Promise((resolve) => window.setTimeout(resolve, 420));
+    if (!quietMotion) await new Promise((resolve) => window.setTimeout(resolve, 420));
     setPhase('complete');
   };
 
@@ -267,8 +321,8 @@ function Garden() {
     setChallenge('');
     setChallenging(true);
     await streamDeterministicText(challengeResponse, {
-      delay: reducedMotion ? 0 : 13,
-      chunkSize: reducedMotion ? challengeResponse.length : 5,
+      delay: quietMotion ? 0 : 13,
+      chunkSize: quietMotion ? challengeResponse.length : 5,
       onChunk: (chunk) => setChallenge((current) => current + chunk),
     });
     setChallenging(false);
@@ -277,11 +331,11 @@ function Garden() {
   const statusCopy = phase === 'empty' ? 'FIELD NOTE 00 / READY' : phase === 'complete' ? 'FIELD NOTE 06 / MAPPED' : 'FIELD NOTE / ANALYZING';
 
   return (
-    <main className="garden-shell">
+    <main className={`garden-shell ${lowPower ? 'low-power' : ''}`}>
       <header className="masthead">
         <div className="journal-mark"><Sprout size={20} /><span>Signal Garden</span></div>
         <div className="edition">AI PRODUCT DISCOVERY CANVAS<br />RESEARCH EDITION · 2026</div>
-        <div className="masthead-status"><i className={phase === 'complete' ? 'done' : ''} />{statusCopy}</div>
+        <div className="masthead-status"><i className={phase === 'complete' ? 'done' : ''} />{statusCopy}{lowPower ? ' · ECO' : ''}</div>
       </header>
 
       <section className="editorial-intro">
@@ -328,14 +382,14 @@ function Garden() {
               onEdgesChange={onEdgesChange}
               onNodeClick={(_, node) => setSelectedId(node.id)}
               fitView
-              fitViewOptions={{ padding: 0.15, duration: reducedMotion ? 0 : 700 }}
+              fitViewOptions={{ padding: 0.15, duration: quietMotion ? 0 : 700 }}
               minZoom={0.45}
               maxZoom={1.65}
               proOptions={{ hideAttribution: true }}
             >
               <Background color="#d7d0bf" gap={28} size={1} />
               <Controls showInteractive={false} position="bottom-left" />
-              <MiniMap position="bottom-right" pannable zoomable nodeStrokeWidth={2} />
+              {!lowPower ? <MiniMap position="bottom-right" pannable zoomable nodeStrokeWidth={2} /> : null}
             </ReactFlow>
             <div className="map-legend">
               <span><i className="legend-source" />source</span>
@@ -358,7 +412,7 @@ function Garden() {
             initial={{ x: 430 }}
             animate={{ x: 0 }}
             exit={{ x: 430 }}
-            transition={{ duration: reducedMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: quietMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <button className="ledger-close" onClick={() => setSelectedId(null)} aria-label="Close evidence inspector"><X size={17} /></button>
             <div className="ledger-heading">
