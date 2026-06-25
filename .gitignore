@@ -8,3 +8,9 @@ dist
 !.env.example
 playwright-report
 test-results
+api/.venv
+api/.pytest_cache
+api/**/__pycache__
+*.pyc
+*.db
+*.db-journal
