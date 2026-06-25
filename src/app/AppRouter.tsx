@@ -9,9 +9,9 @@ const ShareRoute = lazy(() => import('../routes/ShareRoute').then((module) => ({
 class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
   static getDerivedStateFromError(error: Error) { return { error }; }
-  componentDidCatch(error: Error, info: ErrorInfo) { console.error('Signal Garden render failure', error, info.componentStack); }
+  componentDidCatch(error: Error, info: ErrorInfo) { console.error('Research Evidence Map render failure', error, info.componentStack); }
   render() {
-    if (this.state.error) return <main className="garden-shell"><ErrorState title="Signal Garden hit an unrecoverable interface error." detail={this.state.error.message} retry={() => this.setState({ error: null })} /></main>;
+    if (this.state.error) return <main className="garden-shell"><ErrorState title="Research Evidence Map hit an unrecoverable interface error." detail={this.state.error.message} retry={() => this.setState({ error: null })} /></main>;
     return this.props.children;
   }
 }

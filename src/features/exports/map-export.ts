@@ -19,7 +19,7 @@ export function buildMapSvg(detail: WorkspaceDetail) {
     const label = escapeXml(clusterLabel.get(item.id) ?? 'Unclustered');
     return `<g transform="translate(${x} ${y})"><rect width="285" height="88" fill="#f7f3e9" stroke="#8e8878"/><text x="14" y="20" font-family="monospace" font-size="10" fill="#68705f">${escapeXml(item.review_state.toUpperCase())} · ${label}</text><text x="14" y="46" font-family="serif" font-size="17" fill="#20261f">${title}</text><text x="14" y="68" font-family="sans-serif" font-size="10" fill="#666459">${escapeXml(item.kind)}</text></g>`;
   }).join('');
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#f1ede2"/><text x="70" y="62" font-family="serif" font-size="34" fill="#20261f">${escapeXml(detail.workspace.name)} / Signal Garden</text><text x="70" y="92" font-family="monospace" font-size="12" fill="#68675e">TRACEABLE EVIDENCE MAP · ${evidence.length} EVIDENCE · ${clusters.length} CLUSTERS</text>${cards}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#f1ede2"/><text x="70" y="62" font-family="serif" font-size="34" fill="#20261f">${escapeXml(detail.workspace.name)} / Research Evidence Map</text><text x="70" y="92" font-family="monospace" font-size="12" fill="#68675e">SOURCE-TRACEABLE EVIDENCE · ${evidence.length} EVIDENCE · ${clusters.length} CLUSTERS</text>${cards}</svg>`;
 }
 
 function downloadBlob(blob: Blob, filename: string) {

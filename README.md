@@ -1,46 +1,102 @@
-# Signal Garden
+# Research Evidence Map
 
-**AI Product Discovery Canvas** — a standalone high-fidelity prototype that turns scattered interviews, reviews, support tickets, and meeting notes into a traceable evidence map.
+Research Evidence Map is a full-stack workspace for turning customer research into reviewable product evidence without losing the source trail.
 
-## Art direction
+The project began as a visual experiment called **Signal Garden**. The current implementation keeps that cartographic visual language only where it helps people scan clusters; the product itself is organized around a concrete research workflow rather than the metaphor.
 
-Signal Garden is intentionally an editorial research instrument rather than a SaaS dashboard. The UI uses warm paper, field-note typography, botanical indexing, proof marks, and cartographic relationships. Sources begin as seeds, then grow into evidence clusters whose density and spatial position communicate agreement and contradiction.
+## Problem
 
-## Core interactions
+Customer interviews, app reviews, support threads, and meeting notes usually end up scattered across documents and dashboards. Synthesis is useful, but it becomes hard to trust once the connection between a conclusion and the original source is lost.
 
-- Deterministic AI analysis that streams raw sources into the field map.
-- `d3-force` clustering for the source evidence seeds.
-- React Flow pan, zoom, drag, and source-to-insight traceability.
-- Rough.js proof marks plus density-scaled hand-drawn cluster canopies.
-- Evidence ledger with source provenance and a streaming challenge response.
-- Manual merge/split cluster controls.
-- Automatic ECO mode for low-memory/low-core devices, reduced-motion, and responsive mobile layouts.
+This project tests a narrower idea: every AI-assisted synthesis should remain inspectable, reversible, and traceable to the exact source fragment that produced it.
 
-## Visual reference adoption
+## Working flow
 
-The required catalog is preserved verbatim at [`docs/visual-reference-catalog.md`](docs/visual-reference-catalog.md). The investigation, license decisions, prototypes, adopted code and rejected candidates are documented in [`docs/reference-adoption.md`](docs/reference-adoption.md).
+```text
+Create research workspace
+→ import real source material
+→ preview source scope
+→ extract proposed evidence
+→ human review
+→ merge / split clusters
+→ derive opportunities
+→ challenge an opportunity
+→ inspect provenance
+→ export or share read-only
+```
 
-### Latest captures
+## What is implemented
 
-![Signal Garden desktop](./public/preview.png)
+- React + TypeScript research workspace with list and spatial evidence views.
+- FastAPI API with persisted workspaces, sources, fragments, evidence, clusters, opportunities, challenges, and edit history.
+- PostgreSQL-ready persistence with Alembic migrations and a local database mode.
+- Text/file source intake with explicit preview before analysis.
+- Human review states for AI-proposed evidence.
+- Merge/split cluster editing with undo/redo history.
+- Source-fragment provenance in the evidence inspector and read-only share view.
+- Optional OpenAI-compatible extraction/challenge adapter.
+- Deterministic local adapter when no external model is configured.
+- Exportable evidence map and source register.
+- Reduced-motion, lower-power, keyboard, mobile, and accessibility handling.
 
-![Signal Garden mobile](./public/preview-mobile.png)
+## AI boundary
 
-## Run locally
+AI output is treated as a proposal, not accepted research truth.
+
+The default local adapter is deterministic and intentionally simple. It exists so the complete workflow can run without credentials. When an OpenAI-compatible provider is configured, structured output is schema-validated and still enters the same human-review flow.
+
+The UI records provider, model, prompt version, schema version, token counts, and failure state so generated synthesis is distinguishable from imported source material and human edits.
+
+## Data honesty
+
+The application accepts real research material. Any empty-state or development fixture is illustrative only and is not presented as observed customer evidence.
+
+The core chain is explicit throughout the codebase:
+
+```text
+SOURCE DOCUMENT → SOURCE FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY
+```
+
+## Architecture
+
+```text
+src/
+  api/            browser API client
+  canvas/         evidence map visualization
+  features/       import, evidence, opportunity, export workflows
+  routes/         home, workspace, read-only share
+  schemas/        runtime domain validation
+  state/          workspace state and history
+
+api/
+  app/            FastAPI service, persistence, provider adapters
+  alembic/        database migrations
+```
+
+## Design decisions
+
+**Why keep a map at all?** Spatial grouping is useful for scanning agreement, contradiction, and density, but the list view remains a first-class alternative. The map is not the source of truth.
+
+**Why preserve deterministic mode?** A research workflow should remain inspectable without requiring an external model or hiding behavior behind generated text. Provider-backed analysis is an adapter, not the domain model.
+
+**Why explicit review state?** Extracted evidence can be wrong. Proposed evidence therefore moves through human review rather than being silently promoted to fact.
+
+## Local development
 
 ```bash
 corepack pnpm install
+docker compose up -d
 corepack pnpm dev
 ```
 
-Open http://localhost:3101.
+Default web address: `http://localhost:3101`
 
-## Quality checks
+The deployed instance is linked from the repository homepage.
 
-```bash
-corepack pnpm typecheck
-corepack pnpm lint
-corepack pnpm build
-```
+## Project status
 
-This repository is self-contained and does not depend on the original `ai-ux-mvp-lab` workspace.
+This is a working full-stack reference implementation and ongoing product experiment. It is not presented as a mature multi-tenant SaaS service. Authentication, organization-level authorization, operational monitoring, backup policy, and production incident procedures would need to be added before exposing sensitive research data to untrusted networks.
+
+## Credits
+
+Third-party libraries and visual references are documented in [`CREDITS.md`](CREDITS.md) and the supporting `docs/` notes.
