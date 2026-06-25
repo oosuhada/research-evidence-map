@@ -32,6 +32,7 @@ Create research workspace
 - PostgreSQL-ready persistence with Alembic migrations and a local database mode.
 - Text/file source intake with explicit preview before analysis.
 - Human review states for AI-proposed evidence.
+- Research-state summary showing source coverage, human-review progress, opportunity support, contradictions, and the next evidence gap to address.
 - Merge/split cluster editing with undo/redo history.
 - Source-fragment provenance in the evidence inspector and read-only share view.
 - Optional OpenAI-compatible extraction/challenge adapter.

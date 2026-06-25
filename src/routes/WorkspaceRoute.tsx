@@ -8,6 +8,7 @@ import { ClusterControls } from '../features/clusters/ClusterControls';
 import { EvidenceInspector } from '../features/evidence/EvidenceInspector';
 import { EvidenceList } from '../features/evidence/EvidenceList';
 import { ExportPanel } from '../features/exports/ExportPanel';
+import { ResearchHealth } from '../features/health/ResearchHealth';
 import { ImportPanel } from '../features/imports/ImportPanel';
 import { SourceRegister } from '../features/imports/SourceRegister';
 import { OpportunityPanel } from '../features/opportunities/OpportunityPanel';
@@ -92,6 +93,8 @@ function WorkspaceRouteInner({ mobile }: { mobile: boolean }) {
     <section className="workspace-hero"><div><Link to="/" className="back-link"><ArrowLeft size={13} />Research archive</Link><span className="kicker">WORKSPACE / {detail.workspace.id.slice(0, 8)}</span><h1>{detail.workspace.name}</h1><p>{detail.workspace.description || 'No research question has been recorded for this workspace yet.'}</p></div><aside><div><ShieldCheck size={16} /><span>LOCAL REFERENCE MODE</span><p>Sources remain in the configured local database. Retention guidance: {detail.retention_days} days. Delete sources or the workspace whenever required.</p></div><div className="history-actions"><button onClick={() => void history('undo')} disabled={!canUndo || Boolean(busy)}><Undo2 size={14} />Undo</button><button onClick={() => void history('redo')} disabled={!canRedo || Boolean(busy)}><Redo2 size={14} />Redo</button></div></aside></section>
 
     {error ? <div className="page-error" role="alert">{error}<button onClick={() => setError(null)}>Dismiss</button></div> : null}
+
+    <ResearchHealth detail={detail} />
 
     <nav className="workflow-rail" aria-label="Discovery workflow"><a href="#sources">01 Workspace</a><a href="#sources">02 Import</a><a href="#analysis">03 Analyze</a><a href="#evidence">04 Review & cluster</a><a href="#opportunities">05 Opportunity</a><a href="#opportunities">06 Challenge</a><a href="#exports">07 Export</a></nav>
 
