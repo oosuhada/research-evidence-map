@@ -179,12 +179,80 @@ export const importPreviewSchema = z.object({
   analysis_started: z.boolean(),
 });
 
+export const researchMemorySchema = z.object({
+  workspace_count: z.number(),
+  workspaces: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    updated_at: z.string(),
+    source_count: z.number(),
+    evidence_count: z.number(),
+    reviewed_evidence_count: z.number(),
+    cluster_count: z.number(),
+    opportunity_count: z.number(),
+    contradiction_count: z.number(),
+  })),
+  themes: z.array(z.object({
+    key: z.string(),
+    label: z.string(),
+    workspace_ids: z.array(z.string()),
+    workspace_names: z.array(z.string()),
+    cluster_ids: z.array(z.string()),
+    workspace_count: z.number(),
+    evidence_count: z.number(),
+    status: z.enum(['recurring', 'single-workspace']),
+    first_seen: z.string(),
+    last_seen: z.string(),
+  })),
+  latest_comparison: z.object({
+    workspace_id: z.string(),
+    workspace_name: z.string(),
+    previous_workspace_count: z.number(),
+    recurring_signals: z.array(z.string()),
+    new_signals: z.array(z.string()),
+  }).nullable(),
+  backlog: z.array(z.object({
+    id: z.string(),
+    workspace_id: z.string(),
+    workspace_name: z.string(),
+    kind: z.enum(['research-question', 'evidence-gap', 'contradiction']),
+    label: z.string(),
+    reason: z.string(),
+    updated_at: z.string(),
+  })),
+  opportunities: z.array(z.object({
+    id: z.string(),
+    workspace_id: z.string(),
+    workspace_name: z.string(),
+    title: z.string(),
+    body: z.string(),
+    review_state: z.string(),
+    linked_evidence_count: z.number(),
+    reviewed_evidence_count: z.number(),
+    source_count: z.number(),
+    contradiction_count: z.number(),
+    priority_band: z.enum(['ready-for-decision-review', 'finish-human-review', 'collect-more-evidence', 'challenge-before-prioritizing']),
+    created_at: z.string(),
+  })),
+  search_results: z.array(z.object({
+    kind: z.enum(['source', 'evidence', 'cluster', 'opportunity']),
+    id: z.string(),
+    workspace_id: z.string(),
+    workspace_name: z.string(),
+    title: z.string(),
+    excerpt: z.string(),
+    source_fragment_ids: z.array(z.string()),
+  })),
+});
+
 export type WorkspaceSummary = z.infer<typeof workspaceSummarySchema>;
 export type WorkspaceDetail = z.infer<typeof workspaceDetailSchema>;
 export type Evidence = z.infer<typeof evidenceSchema>;
 export type Cluster = z.infer<typeof clusterSchema>;
 export type Opportunity = z.infer<typeof opportunitySchema>;
 export type ImportPreview = z.infer<typeof importPreviewSchema>;
+export type ResearchMemory = z.infer<typeof researchMemorySchema>;
 export type ReviewState = z.infer<typeof reviewStateSchema>;
 
 export type ImportDocument = {

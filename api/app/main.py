@@ -5,7 +5,7 @@ import io
 from datetime import datetime, timezone
 from hashlib import sha256
 
-from fastapi import Depends, FastAPI, HTTPException, Response
+from fastapi import Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -14,6 +14,7 @@ from . import models, schemas
 from .config import settings
 from .database import Base, engine, get_db
 from .importers import contains_sensitive_data, content_hash, fragment_text, normalize_content, preview_fragment_text
+from .memory import build_research_memory
 from .repository import record_edit, require_workspace, workspace_detail
 from .service import cancel_analysis, challenge_opportunity, create_cluster, merge_clusters, patch_evidence, redo_last, run_analysis, split_cluster, undo_last
 
@@ -42,6 +43,11 @@ def health() -> dict:
 @app.get("/api/workspaces", response_model=list[schemas.WorkspaceSummary])
 def list_workspaces(db: Session = Depends(get_db)):
     return db.scalars(select(models.Workspace).where(models.Workspace.deleted_at.is_(None)).order_by(models.Workspace.updated_at.desc())).all()
+
+
+@app.get("/api/research-memory")
+def research_memory(q: str = Query(default="", max_length=300), db: Session = Depends(get_db)) -> dict:
+    return build_research_memory(db, q)
 
 
 @app.post("/api/workspaces", response_model=schemas.WorkspaceSummary, status_code=201)
