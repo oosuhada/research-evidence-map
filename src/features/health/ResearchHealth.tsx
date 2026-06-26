@@ -33,7 +33,7 @@ export function ResearchHealth({ detail }: Props) {
             : 'The current evidence chain is reviewable end to end. Add disconfirming sources before treating the synthesis as stable.';
 
   return (
-    <section className="research-health" aria-labelledby="research-health-heading">
+    <section id="research-health" className="research-health" aria-labelledby="research-health-heading">
       <div className="research-health-intro">
         <span>RESEARCH STATE</span>
         <h2 id="research-health-heading">What is supported, and what is still missing?</h2>

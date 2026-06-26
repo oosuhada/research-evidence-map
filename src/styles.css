@@ -519,6 +519,42 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
   .garden-footer span:first-child { max-width: 85vw; }
 }
 
+.home-quickstart { margin-top: 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.home-quickstart .ink-button { width: auto; min-height: 46px; }
+.home-quickstart > div { display: grid; gap: 3px; max-width: 420px; }
+.home-quickstart strong { font: 10px 'DM Mono', monospace; text-transform: uppercase; }
+.home-quickstart span { font-size: 12px; line-height: 1.45; color: #67655b; }
+.onboarding-strip { margin: 6px 0 28px; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #b8b09f; background: #eee8da; }
+.onboarding-strip article { min-height: 118px; display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 16px; border-right: 1px solid #c5bdab; }
+.onboarding-strip article:last-child { border-right: 0; }
+.onboarding-strip article > span { font: 10px 'DM Mono', monospace; color: #7f7869; }
+.onboarding-strip strong { font: 500 17px 'Newsreader', serif; }
+.onboarding-strip p { margin: 7px 0 0; font-size: 11px; line-height: 1.5; color: #68655c; }
+.guide-trigger { margin-top: 12px; border: 0; border-bottom: 1px solid currentColor; padding: 0 0 2px; background: transparent; font: 9px 'DM Mono', monospace; color: #596a50; cursor: pointer; }
+.workspace-guide { position: fixed; z-index: 120; right: 24px; bottom: 24px; width: min(390px, calc(100vw - 32px)); border: 1px solid #8e8878; background: rgba(246,241,226,.98); box-shadow: 12px 16px 0 rgba(72,65,51,.12); padding: 15px; color: #24261f; }
+.workspace-guide-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #bcb4a2; padding-bottom: 9px; }
+.workspace-guide-head > span { font: 9px 'DM Mono', monospace; letter-spacing: .1em; color: #68745b; }
+.workspace-guide-head button { width: 30px; height: 30px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; }
+.workspace-guide-progress { margin-top: 13px; display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 6px; font: 9px 'DM Mono', monospace; color: #777164; }
+.workspace-guide-progress > b { font-size: 16px; color: #42503d; }
+.workspace-guide-progress > i { height: 3px; background: #d5cebd; overflow: hidden; }
+.workspace-guide-progress > i > b { display: block; height: 100%; background: #65785a; }
+.workspace-guide h3 { margin: 14px 0 6px; font: 500 25px/1 'Newsreader', serif; }
+.workspace-guide > p { margin: 0; font-size: 12px; line-height: 1.55; color: #626057; }
+.workspace-guide-actions { margin-top: 15px; display: flex; align-items: center; justify-content: space-between; }
+.workspace-guide-actions button { min-height: 36px; border: 1px solid #aaa291; background: transparent; padding: 0 11px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.workspace-guide-actions button.primary { background: #252b24; border-color: #252b24; color: #f6f0e3; }
+.workspace-guide-complete { padding: 17px 0 3px; display: grid; grid-template-columns: 24px 1fr; gap: 10px; }
+.workspace-guide-complete strong { font: 500 18px 'Newsreader', serif; }
+.workspace-guide-complete p { margin: 5px 0 0; font-size: 11px; line-height: 1.5; color: #656158; }
+
+@media (max-width: 760px) {
+  .onboarding-strip { grid-template-columns: 1fr; }
+  .onboarding-strip article { border-right: 0; border-bottom: 1px solid #c5bdab; min-height: 96px; }
+  .onboarding-strip article:last-child { border-bottom: 0; }
+  .workspace-guide { left: 12px; right: 12px; bottom: 12px; width: auto; }
+}
+
 .research-health { margin: 18px 22px 10px; border: 1px solid #b9b09d; background: #eee8da; box-shadow: 5px 6px 0 rgba(65, 57, 42, .06); }
 .research-health-intro { display: grid; grid-template-columns: 170px minmax(0, 1fr) minmax(260px, .8fr); gap: 18px; align-items: start; padding: 15px 17px; border-bottom: 1px solid #c7beab; }
 .research-health-intro > span, .research-health-grid article > span, .research-next-action span { font: 9px 'DM Mono', monospace; letter-spacing: .08em; color: #777164; }

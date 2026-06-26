@@ -39,6 +39,7 @@ Create research workspace
 - Deterministic local adapter when no external model is configured.
 - Exportable evidence map and source register.
 - Reduced-motion, lower-power, keyboard, mobile, and accessibility handling.
+- First-run guided demo that creates synthetic source documents through the real API, runs analysis, records reviewed evidence, creates an opportunity and contradiction, and walks through the resulting workspace.
 
 ## AI boundary
 
