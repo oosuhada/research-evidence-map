@@ -1,6 +1,12 @@
-# Decision-Centered Demo
+# Verification Tax → Decision Record Demo
 
 This demo is intentionally structured around the market hypothesis that **AI analysis is fast, but verification and decision accountability remain manual**.
+
+The central question is:
+
+> **After AI has made analysis faster, how much work remains before a human can trust the result enough to make a product decision?**
+
+The product treats that remaining source checking, review, contradiction handling, and decision reconstruction as a **verification tax**. The demo should show how the system makes that tax visible and structured rather than simply producing more AI output.
 
 It uses synthetic data unless explicitly replaced with consented/anonymized customer material. Synthetic examples must never be presented as customer validation.
 
