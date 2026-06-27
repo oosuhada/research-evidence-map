@@ -569,6 +569,47 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
 .onboarding-strip article > span { font: 10px 'DM Mono', monospace; color: #7f7869; }
 .onboarding-strip strong { font: 500 17px 'Newsreader', serif; }
 .onboarding-strip p { margin: 7px 0 0; font-size: 11px; line-height: 1.5; color: #68655c; }
+.portfolio-hero-thesis { display: inline-flex; margin-bottom: 18px; padding: 7px 10px; border: 1px solid #9caa83; color: #526340; background: #e8ecd9; font: 9px 'DM Mono', monospace; letter-spacing: .09em; }
+.portfolio-narrative { max-width: 1220px; margin: 0 auto 42px; border-top: 1px solid #948c7c; border-bottom: 1px solid #948c7c; }
+.portfolio-thesis-row { min-height: 78px; display: grid; grid-template-columns: 250px 1fr; align-items: center; gap: 24px; padding: 16px 4px; }
+.portfolio-thesis-row span, .killer-copy > span, .architecture-card > div > span { font: 9px 'DM Mono', monospace; letter-spacing: .1em; color: #6f7561; }
+.portfolio-thesis-row p { margin: 0; max-width: 790px; font: 500 20px/1.35 'Newsreader', serif; }
+.killer-demo { display: grid; grid-template-columns: .8fr 1.2fr; gap: 34px; padding: 32px 0; border-top: 1px solid #c4bcaa; }
+.killer-copy h2 { max-width: 520px; margin: 9px 0 12px; font: 500 clamp(28px, 3.3vw, 48px)/1 'Newsreader', serif; letter-spacing: -.035em; }
+.killer-copy p { max-width: 500px; margin: 0; color: #6d6a61; font-size: 12px; line-height: 1.6; }
+.trace-demo { border: 1px solid #a9a18f; background: #eee8da; }
+.trace-rail { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #b9b19f; }
+.trace-rail button { position: relative; min-height: 58px; padding: 10px; border: 0; border-right: 1px solid #c6bead; background: transparent; text-align: left; cursor: pointer; }
+.trace-rail button:last-child { border-right: 0; }
+.trace-rail button span { font: 8px 'DM Mono', monospace; color: #827b6d; }
+.trace-rail button i { display: block; width: 7px; height: 7px; margin-top: 10px; border: 1px solid #777568; border-radius: 50%; }
+.trace-rail button.passed i { background: #79865a; border-color: #79865a; }
+.trace-rail button.active { background: #e1e5d0; }
+.trace-rail button.active i { width: 12px; height: 12px; margin-top: 7px; background: #506039; border-color: #506039; box-shadow: 0 0 0 4px rgba(80,96,57,.12); }
+.trace-demo article { min-height: 190px; padding: 24px; display: grid; align-content: center; gap: 8px; }
+.trace-demo article > span, .trace-demo article small { font: 8px 'DM Mono', monospace; color: #777264; }
+.trace-demo article strong { font: 500 24px 'Newsreader', serif; }
+.trace-demo article p { margin: 0; max-width: 650px; font: 16px/1.5 'Newsreader', serif; }
+.approach-compare { display: grid; grid-template-columns: 1fr 52px 1fr; align-items: stretch; border-top: 1px solid #c4bcaa; }
+.approach-compare article { padding: 22px; min-height: 150px; }
+.approach-compare article > span { font: 8px 'DM Mono', monospace; color: #7b7467; }
+.approach-compare article strong { display: block; margin: 9px 0; font: 500 20px 'Newsreader', serif; }
+.approach-compare article p { margin: 0; font-size: 11px; line-height: 1.55; color: #6d6a61; }
+.common-approach { background: #e6dfd1; }
+.our-approach { background: #e4e8d6; }
+.compare-vs { display: grid; place-items: center; border-left: 1px solid #c4bcaa; border-right: 1px solid #c4bcaa; font: 8px 'DM Mono', monospace; color: #81796c; }
+.architecture-card { display: grid; grid-template-columns: .48fr 1.52fr; gap: 24px; padding: 26px 0; border-top: 1px solid #c4bcaa; }
+.architecture-card h3 { margin: 8px 0 0; max-width: 360px; font: 500 21px/1.2 'Newsreader', serif; }
+.architecture-flow { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); align-items: center; gap: 8px; }
+.architecture-flow span { position: relative; display: grid; place-items: center; min-height: 72px; padding: 8px; border: 1px solid #aaa28f; background: #ede7d8; text-align: center; font: 7px/1.3 'DM Mono', monospace; }
+.architecture-flow span:not(:last-child)::after { content: '→'; position: absolute; right: -10px; z-index: 2; color: #81796a; }
+.architecture-flow .ai-node { border-style: dashed; background: #e8e0d2; }
+.architecture-flow .human-node { border-color: #728052; background: #dfe5c9; }
+.case-story { display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #c4bcaa; }
+.case-story article { min-height: 148px; padding: 16px 14px; border-right: 1px solid #c4bcaa; }
+.case-story article:last-child { border-right: 0; }
+.case-story span { font: 8px 'DM Mono', monospace; color: #777264; }
+.case-story p { margin: 12px 0 0; font-size: 10px; line-height: 1.55; color: #58574f; }
 .guide-trigger { margin-top: 12px; border: 0; border-bottom: 1px solid currentColor; padding: 0 0 2px; background: transparent; font: 9px 'DM Mono', monospace; color: #596a50; cursor: pointer; }
 .workspace-guide { position: fixed; z-index: 120; right: 24px; bottom: 24px; width: min(390px, calc(100vw - 32px)); border: 1px solid #8e8878; background: rgba(246,241,226,.98); box-shadow: 12px 16px 0 rgba(72,65,51,.12); padding: 15px; color: #24261f; }
 .workspace-guide-head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #bcb4a2; padding-bottom: 9px; }
@@ -591,6 +632,18 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
   .onboarding-strip { grid-template-columns: 1fr; }
   .onboarding-strip article { border-right: 0; border-bottom: 1px solid #c5bdab; min-height: 96px; }
   .onboarding-strip article:last-child { border-bottom: 0; }
+  .portfolio-narrative { margin-left: 0; margin-right: 0; }
+  .portfolio-thesis-row, .killer-demo, .architecture-card { grid-template-columns: 1fr; }
+  .portfolio-thesis-row { gap: 8px; }
+  .trace-rail { grid-template-columns: 1fr 1fr; }
+  .trace-rail button:nth-child(2) { border-right: 0; }
+  .trace-rail button:nth-child(-n+2) { border-bottom: 1px solid #c6bead; }
+  .approach-compare { grid-template-columns: 1fr; }
+  .compare-vs { min-height: 34px; border-left: 0; border-right: 0; border-top: 1px solid #c4bcaa; border-bottom: 1px solid #c4bcaa; }
+  .architecture-flow { grid-template-columns: 1fr 1fr; }
+  .architecture-flow span:not(:last-child)::after { display: none; }
+  .case-story { grid-template-columns: 1fr 1fr; }
+  .case-story article { border-bottom: 1px solid #c4bcaa; }
   .workspace-guide { left: 12px; right: 12px; bottom: 12px; width: auto; }
 }
 
