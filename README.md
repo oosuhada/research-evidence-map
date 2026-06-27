@@ -8,9 +8,19 @@ Research Evidence Map is a full-stack workspace for turning customer research in
 
 This project is **Inspectable AI Systems / 01 — Research**. The portfolio thesis is that AI-assisted software should expose the provenance, uncertainty, computation, and human judgment needed to challenge its output rather than hiding those boundaries behind fluent generation.
 
-The first-run experience is intentionally structured as a compact case study: **Before → Problem → Insight → Architecture → Interaction → Result**. Its representative interaction is a provenance trace that walks one conclusion backward through `OPPORTUNITY → REVIEWED EVIDENCE → SOURCE FRAGMENT → SOURCE`, making the trust model visible before a reviewer enters the full workspace.
+The first-run experience is intentionally structured as a compact case study: **Before → Problem → Insight → Architecture → Interaction → Result**. Its representative interaction is a provenance trace assembled from the latest persisted workspace: `OPPORTUNITY → REVIEWED EVIDENCE → SOURCE FRAGMENT → SOURCE`. The home trace and the workspace inspector read the same API/domain records rather than using a separate marketing-only data path.
 
-![Research Evidence Map portfolio overview](docs/portfolio-overview.png)
+### Killer interaction — one persisted conclusion, traced backward
+
+![Persisted opportunity at the end of the provenance chain](docs/portfolio/01-killer-opportunity.png)
+
+The same interactive trace can be rewound to the exact imported source and locator:
+
+![Exact source at the beginning of the provenance chain](docs/portfolio/02-killer-source.png)
+
+### Architecture proof
+
+![Research trust and data architecture](docs/portfolio/03-architecture.png)
 
 **Common approach:** documents → generated summary → recommendation.  
 **This system:** source → addressable fragment → AI proposal → human review → cluster/opportunity → cross-workspace research memory.
