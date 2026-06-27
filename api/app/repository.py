@@ -30,6 +30,7 @@ def workspace_detail(db: Session, workspace_id: str) -> dict:
     opportunities = db.scalars(select(models.Opportunity).where(models.Opportunity.workspace_id == workspace_id).order_by(models.Opportunity.created_at)).all()
     contradictions = db.scalars(select(models.Contradiction).where(models.Contradiction.workspace_id == workspace_id).order_by(models.Contradiction.created_at)).all()
     challenges = db.scalars(select(models.ChallengeRun).where(models.ChallengeRun.workspace_id == workspace_id).order_by(models.ChallengeRun.created_at)).all()
+    decisions = db.scalars(select(models.DecisionRecord).where(models.DecisionRecord.workspace_id == workspace_id).order_by(models.DecisionRecord.created_at)).all()
     human_edits = db.scalars(select(models.HumanEdit).where(models.HumanEdit.workspace_id == workspace_id).order_by(models.HumanEdit.created_at.desc()).limit(100)).all()
     shares = db.scalars(select(models.ShareLink).where(models.ShareLink.workspace_id == workspace_id).order_by(models.ShareLink.created_at.desc())).all()
     return {
@@ -54,6 +55,7 @@ def workspace_detail(db: Session, workspace_id: str) -> dict:
         "opportunities": opportunities,
         "contradictions": contradictions,
         "challenges": challenges,
+        "decisions": decisions,
         "human_edits": human_edits,
         "shares": shares,
         "retention_days": settings.retention_days,

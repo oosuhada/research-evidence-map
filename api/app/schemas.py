@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 ReviewState = Literal["proposed", "reviewed", "accepted", "edited", "rejected", "superseded"]
+DecisionOutcome = Literal["proceed", "experiment", "hold", "reject"]
 
 
 class WorkspaceCreate(BaseModel):
@@ -68,6 +69,12 @@ class ContradictionCreate(BaseModel):
     note: str = Field(min_length=1)
     evidence_item_ids: list[str] = Field(min_length=1)
     opportunity_id: str | None = None
+
+
+class DecisionCreate(BaseModel):
+    outcome: DecisionOutcome
+    rationale: str = Field(min_length=1, max_length=5000)
+    next_step: str = Field(default="", max_length=3000)
 
 
 class ShareCreate(BaseModel):
@@ -187,6 +194,24 @@ class ChallengeOut(Entity):
     created_at: datetime
 
 
+class DecisionOut(Entity):
+    id: str
+    workspace_id: str
+    opportunity_id: str
+    outcome: str
+    rationale: str
+    next_step: str
+    evidence_item_ids: list[str]
+    source_fragment_ids: list[str]
+    contradiction_ids: list[str]
+    challenge_run_ids: list[str]
+    reviewed_evidence_count: int
+    unresolved_evidence_count: int
+    version: int
+    supersedes_decision_id: str | None
+    created_at: datetime
+
+
 class AnalysisOut(Entity):
     id: str
     provider: str
@@ -232,6 +257,7 @@ class WorkspaceDetail(BaseModel):
     opportunities: list[OpportunityOut]
     contradictions: list[ContradictionOut]
     challenges: list[ChallengeOut]
+    decisions: list[DecisionOut]
     human_edits: list[HumanEditOut]
     shares: list[ShareOut]
     retention_days: int

@@ -233,8 +233,12 @@ def _undo_edit(db: Session, edit: models.HumanEdit) -> None:
             original.review_state = "edited"
             original.superseded_by_id = None
         return
-    if edit.action == "create" and edit.entity_type in {"opportunity", "contradiction"}:
-        model = models.Opportunity if edit.entity_type == "opportunity" else models.Contradiction
+    if edit.action == "create" and edit.entity_type in {"opportunity", "contradiction", "decision"}:
+        model = {
+            "opportunity": models.Opportunity,
+            "contradiction": models.Contradiction,
+            "decision": models.DecisionRecord,
+        }[edit.entity_type]
         entity = db.get(model, edit.entity_id)
         if entity:
             db.delete(entity)
@@ -287,6 +291,10 @@ def _redo_edit(db: Session, edit: models.HumanEdit) -> None:
     if edit.entity_type == "contradiction" and edit.action == "create":
         payload = edit.after_json
         db.add(models.Contradiction(id=edit.entity_id, workspace_id=edit.workspace_id, **payload))
+        return
+    if edit.entity_type == "decision" and edit.action == "create":
+        payload = edit.after_json
+        db.add(models.DecisionRecord(id=edit.entity_id, workspace_id=edit.workspace_id, **payload))
 
 
 def undo_last(db: Session, workspace_id: str) -> models.HumanEdit:

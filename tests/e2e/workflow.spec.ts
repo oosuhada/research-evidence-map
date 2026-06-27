@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('real UI workflow imports three interviews, reviews, clusters, challenges, traces and persists', async ({ page }) => {
+test('real UI workflow imports research, reviews evidence, challenges an opportunity, records a decision and persists', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Workspace name').fill(`UI acceptance ${Date.now()}`);
   await page.getByLabel('Research question / description').fill('Validate evidence-backed onboarding discovery.');
@@ -63,6 +63,16 @@ test('real UI workflow imports three interviews, reviews, clusters, challenges, 
   await page.getByRole('button', { name: /Challenge this opportunity/ }).click();
   await expect(page.locator('.challenge-note blockquote')).toContainText('Challenge:');
 
+  await expect(page.getByRole('heading', { name: 'Decision record' })).toBeVisible();
+  await expect(page.locator('.decision-warning')).toContainText('linked evidence item(s) still need human review');
+  await page.getByLabel('Decision outcome').selectOption('experiment');
+  await page.getByLabel('Decision rationale').fill('Run a focused validation before committing because one linked signal is still unresolved.');
+  await page.getByLabel('Decision next step').fill('Test the verification workflow with product practitioners.');
+  await page.getByRole('button', { name: 'Record human decision' }).click();
+  await expect(page.locator('.decision-timeline')).toContainText('RUN EXPERIMENT');
+  await expect(page.locator('.decision-timeline')).toContainText('one linked signal is still unresolved');
+  await expect(page.locator('.decision-timeline')).toContainText('1 unresolved');
+
   const markdown = page.getByRole('link', { name: /Markdown opportunity brief/ });
   const downloadPromise = page.waitForEvent('download');
   await markdown.click();
@@ -71,5 +81,6 @@ test('real UI workflow imports three interviews, reviews, clusters, challenges, 
 
   await page.reload();
   await expect(page.locator('.opportunity-list')).toContainText('Evidence on demand');
+  await expect(page.locator('.decision-timeline')).toContainText('RUN EXPERIMENT');
   await expect(page.locator('.analysis-actions')).toContainText('SUCCEEDED');
 });

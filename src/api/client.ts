@@ -1,6 +1,7 @@
 import { z, type ZodType } from 'zod';
 import {
   analysisSchema,
+  decisionSchema,
   evidenceSchema,
   humanEditSchema,
   importPreviewSchema,
@@ -93,6 +94,9 @@ export const api = {
   addContradiction: (workspaceId: string, note: string, evidenceItemIds: string[], opportunityId?: string) => request(`/workspaces/${workspaceId}/contradictions`, z.object({
     id: z.string(), opportunity_id: z.string().nullable(), evidence_item_ids: z.array(z.string()), note: z.string(), review_state: z.string(), created_at: z.string(),
   }), { method: 'POST', body: JSON.stringify({ note, evidence_item_ids: evidenceItemIds, opportunity_id: opportunityId ?? null }) }),
+  recordDecision: (workspaceId: string, opportunityId: string, outcome: 'proceed' | 'experiment' | 'hold' | 'reject', rationale: string, nextStep: string) => request(`/workspaces/${workspaceId}/opportunities/${opportunityId}/decisions`, decisionSchema, {
+    method: 'POST', body: JSON.stringify({ outcome, rationale, next_step: nextStep }),
+  }),
   undo: (workspaceId: string) => request(`/workspaces/${workspaceId}/history/undo`, humanEditSchema, { method: 'POST' }),
   redo: (workspaceId: string) => request(`/workspaces/${workspaceId}/history/redo`, humanEditSchema, { method: 'POST' }),
   createShare: (workspaceId: string, filterJson: Record<string, unknown>) => request(`/workspaces/${workspaceId}/shares`, shareSchema, {

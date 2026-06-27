@@ -6,13 +6,12 @@ import type { WorkspaceDetail } from '../../schemas/domain';
 import { useWorkspaceUi } from '../../state/workspace-context';
 
 type Props = {
-  workspaceId: string;
   detail: WorkspaceDetail;
   onInspect: (id: string) => void;
   onChanged: () => Promise<void>;
 };
 
-export function EvidenceList({ workspaceId, detail, onInspect, onChanged }: Props) {
+export function EvidenceList({ detail, onInspect, onChanged }: Props) {
   const parentRef = useRef<HTMLDivElement | null>(null);
   const { state, dispatch } = useWorkspaceUi();
   const [query, setQuery] = useState('');

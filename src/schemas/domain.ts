@@ -127,6 +127,26 @@ export const challengeSchema = z.object({
   created_at: z.string(),
 });
 
+export const decisionOutcomeSchema = z.enum(['proceed', 'experiment', 'hold', 'reject']);
+
+export const decisionSchema = z.object({
+  id: z.string(),
+  workspace_id: z.string(),
+  opportunity_id: z.string(),
+  outcome: decisionOutcomeSchema,
+  rationale: z.string(),
+  next_step: z.string(),
+  evidence_item_ids: z.array(z.string()),
+  source_fragment_ids: z.array(z.string()),
+  contradiction_ids: z.array(z.string()),
+  challenge_run_ids: z.array(z.string()),
+  reviewed_evidence_count: z.number(),
+  unresolved_evidence_count: z.number(),
+  version: z.number(),
+  supersedes_decision_id: z.string().nullable(),
+  created_at: z.string(),
+});
+
 export const humanEditSchema = z.object({
   id: z.string(),
   entity_type: z.string(),
@@ -156,6 +176,7 @@ export const workspaceDetailSchema = z.object({
   opportunities: z.array(opportunitySchema),
   contradictions: z.array(contradictionSchema),
   challenges: z.array(challengeSchema),
+  decisions: z.array(decisionSchema),
   human_edits: z.array(humanEditSchema),
   shares: z.array(shareSchema),
   retention_days: z.number(),
@@ -251,6 +272,8 @@ export type WorkspaceDetail = z.infer<typeof workspaceDetailSchema>;
 export type Evidence = z.infer<typeof evidenceSchema>;
 export type Cluster = z.infer<typeof clusterSchema>;
 export type Opportunity = z.infer<typeof opportunitySchema>;
+export type Decision = z.infer<typeof decisionSchema>;
+export type DecisionOutcome = z.infer<typeof decisionOutcomeSchema>;
 export type ImportPreview = z.infer<typeof importPreviewSchema>;
 export type ResearchMemory = z.infer<typeof researchMemorySchema>;
 export type ReviewState = z.infer<typeof reviewStateSchema>;
