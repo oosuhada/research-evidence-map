@@ -11,6 +11,7 @@ import {
 import { forceCollide, forceSimulation, forceX, forceY } from 'd3-force';
 import rough from 'roughjs';
 import { CircleDot } from 'lucide-react';
+import { useLocale } from '../i18n/LocaleContext';
 import type { WorkspaceDetail } from '../schemas/domain';
 
 type Props = {
@@ -27,6 +28,7 @@ type Props = {
 type Point = { id: string; clusterId: string; x?: number; y?: number };
 
 function ClusterCanopy({ label, count }: { label: string; count: number }) {
+  const { text } = useLocale();
   const ref = useRef<SVGSVGElement | null>(null);
   const width = Math.min(360, 184 + Math.sqrt(count) * 42);
   const height = Math.min(260, 116 + Math.sqrt(count) * 34);
@@ -38,7 +40,7 @@ function ClusterCanopy({ label, count }: { label: string; count: number }) {
       fill: 'rgba(107, 131, 92, 0.035)', fillStyle: 'hachure', hachureGap: 18, hachureAngle: -28,
     }));
   }, [height, width]);
-  return <div className="cluster-canopy" style={{ width, height }}><svg ref={ref} viewBox={`0 0 ${width} ${height}`} /><span>{label}</span><b>{count} SIGNAL{count === 1 ? '' : 'S'}</b></div>;
+  return <div className="cluster-canopy" style={{ width, height }}><svg ref={ref} viewBox={`0 0 ${width} ${height}`} /><span>{label}</span><b>{text(`${count} SIGNAL${count === 1 ? '' : 'S'}`, `신호 ${count}개`)}</b></div>;
 }
 
 function EvidenceNode({ title, kind, reviewState, selected }: { title: string; kind: string; reviewState: string; selected: boolean }) {
@@ -50,10 +52,12 @@ function EvidenceNode({ title, kind, reviewState, selected }: { title: string; k
 }
 
 function OpportunityNode({ title, selected }: { title: string; selected: boolean }) {
-  return <article className={`field-opportunity-node ${selected ? 'is-selected' : ''}`}><span>PRODUCT OPPORTUNITY</span><strong>{title}</strong></article>;
+  const { text } = useLocale();
+  return <article className={`field-opportunity-node ${selected ? 'is-selected' : ''}`}><span>{text('PRODUCT OPPORTUNITY', '제품 기회')}</span><strong>{title}</strong></article>;
 }
 
 export function GardenCanvas({ detail, selectedEvidenceId, selectedOpportunityId, focusClusterId, onEvidenceSelect, onOpportunitySelect, lowPower = false, focused = false }: Props) {
+  const { text } = useLocale();
   const activeEvidence = useMemo(() => detail.evidence.filter((item) => !item.excluded && item.review_state !== 'superseded'), [detail.evidence]);
   const activeClusters = useMemo(() => detail.clusters.filter((item) => item.review_state !== 'superseded'), [detail.clusters]);
   const evidenceToCluster = useMemo(() => {
@@ -138,7 +142,7 @@ export function GardenCanvas({ detail, selectedEvidenceId, selectedOpportunityId
       className: 'ink-edge',
     }))), [lowPower, visibleIds, visibleOpportunities]);
 
-  return <div className={`flow-field ${focused ? 'focused-flow' : ''}`} aria-label="Evidence map">
+  return <div className={`flow-field ${focused ? 'focused-flow' : ''}`} aria-label={text('Evidence map', '근거 맵')}>
     <ReactFlow
       nodes={nodes}
       edges={edges}
@@ -161,6 +165,6 @@ export function GardenCanvas({ detail, selectedEvidenceId, selectedOpportunityId
       {!focused ? <Controls showInteractive={false} position="bottom-left" /> : null}
       {!lowPower && !focused && nodes.length < 250 ? <MiniMap position="bottom-right" pannable zoomable nodeStrokeWidth={2} /> : null}
     </ReactFlow>
-    <div className="map-legend"><span><i className="legend-source" />evidence</span><span><i className="legend-insight" />opportunity</span></div>
+    <div className="map-legend"><span><i className="legend-source" />{text('evidence', '근거')}</span><span><i className="legend-insight" />{text('opportunity', '기회')}</span></div>
   </div>;
 }

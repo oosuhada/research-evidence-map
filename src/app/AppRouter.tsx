@@ -11,13 +11,13 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
   static getDerivedStateFromError(error: Error) { return { error }; }
   componentDidCatch(error: Error, info: ErrorInfo) { console.error('Research Evidence Map render failure', error, info.componentStack); }
   render() {
-    if (this.state.error) return <main className="garden-shell"><ErrorState title="Research Evidence Map hit an unrecoverable interface error." detail={this.state.error.message} retry={() => this.setState({ error: null })} /></main>;
+    if (this.state.error) return <main className="garden-shell"><ErrorState detail={this.state.error.message} retry={() => this.setState({ error: null })} /></main>;
     return this.props.children;
   }
 }
 
 export function AppRouter() {
-  return <AppErrorBoundary><BrowserRouter><Suspense fallback={<main className="garden-shell"><LoadingState label="Opening the research instrument…" /></main>}><Routes>
+  return <AppErrorBoundary><BrowserRouter><Suspense fallback={<main className="garden-shell"><LoadingState /></main>}><Routes>
       <Route path="/" element={<HomeRoute />} />
       <Route path="/w/:workspaceId" element={<WorkspaceRoute />} />
       <Route path="/share/:token" element={<ShareRoute />} />
