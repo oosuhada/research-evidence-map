@@ -243,10 +243,11 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
 .page-error button { border: 0; background: transparent; text-decoration: underline; cursor: pointer; }
 
 .home-shell { min-height: 100vh; }
+.home-edition { white-space: nowrap; }
 .home-hero { padding: clamp(44px, 7vw, 92px) 5vw clamp(38px, 6vw, 74px); max-width: 1280px; margin: 0 auto; }
 .home-hero > .portfolio-hero-thesis { display: flex; width: fit-content; margin-bottom: 22px; }
-.home-hero > .kicker { display: block; }
-.home-hero h1 { margin: 12px 0 18px; max-width: 1120px; font: 500 clamp(44px, 7vw, 92px)/.91 'Newsreader', serif; letter-spacing: -.05em; word-break: keep-all; }
+.home-hero > .kicker { display: block; margin-bottom: 26px; }
+.home-hero h1 { margin: 0 0 18px; max-width: 1120px; font: 500 clamp(44px, 7vw, 92px)/.91 'Newsreader', serif; letter-spacing: -.05em; word-break: keep-all; }
 .home-hero h1 em { color: var(--green); font-weight: 400; }
 .hero-copy-chunk { display: inline-block; white-space: nowrap; }
 .home-hero > p { max-width: 770px; font: 16px/1.65 'Newsreader', serif; color: #5b5d54; }
@@ -599,7 +600,7 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
 .home-quickstart > div { display: grid; gap: 3px; max-width: 420px; }
 .home-quickstart strong { font: 10px 'DM Mono', monospace; text-transform: uppercase; }
 .home-quickstart span { font-size: 12px; line-height: 1.45; color: #67655b; }
-.onboarding-strip { margin: 6px 0 28px; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #b8b09f; background: #eee8da; }
+.onboarding-strip { margin: 34px 0 34px; display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #b8b09f; background: #eee8da; }
 .onboarding-strip article { min-height: 118px; display: grid; grid-template-columns: 34px 1fr; gap: 12px; padding: 16px; border-right: 1px solid #c5bdab; }
 .onboarding-strip article:last-child { border-right: 0; }
 .onboarding-strip article > span { font: 10px 'DM Mono', monospace; color: #7f7869; }
@@ -790,7 +791,7 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
 .theme-list span { display: block; margin-top: 3px; font-size: 9px; color: #706d64; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .theme-list b { font: 8px/1.45 'DM Mono', monospace; text-align: right; color: #5d6b52; }
 .backlog-list, .priority-list { max-height: 335px; overflow: auto; }
-.backlog-list button, .priority-list button { width: 100%; border: 0; border-bottom: 1px solid #d0c8b9; background: transparent; padding: 9px 1px; text-align: left; cursor: pointer; }
+.backlog-list button, .priority-list button { width: 100%; border: 0; border-bottom: 1px solid #d0c8b9; background: transparent; padding: 11px 12px; text-align: left; cursor: pointer; }
 .backlog-list button:hover, .priority-list button:hover { background: rgba(220, 213, 196, .38); }
 .backlog-list span, .priority-list span { display: inline-block; font: 7px 'DM Mono', monospace; text-transform: uppercase; color: #8c4c3f; }
 .backlog-list strong, .priority-list strong { display: block; margin-top: 4px; font-size: 11px; }
@@ -821,8 +822,8 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
 .flow-field .react-flow__node.contradiction-muted { opacity: .08; }
 .flow-field .react-flow__node.contradiction-active { opacity: 1; filter: none; }
 .flow-field .react-flow__node.contradiction-active .field-evidence-node { border-color: #9f5449; background: #fbefe8; box-shadow: 0 0 0 2px rgba(159,84,73,.12), 8px 8px 0 rgba(159,84,73,.07); }
-.interactive-theme-list > button { width: 100%; border: 0; border-bottom: 1px solid #d0c8b9; background: transparent; padding: 8px 4px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 10px; text-align: left; cursor: pointer; }
-.interactive-theme-list > button.active { background: #e2e6d4; box-shadow: inset 3px 0 #6c7e58; }
+.interactive-theme-list > button { width: 100%; border: 0; border-bottom: 1px solid #d0c8b9; background: transparent; padding: 10px 14px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 12px; text-align: left; cursor: pointer; }
+.interactive-theme-list > button.active { background: #e2e6d4; box-shadow: inset 3px 0 #6c7e58; padding-left: 18px; }
 .interactive-theme-list > button strong { font-size: 11px; }
 .interactive-theme-list > button span { display: block; margin-top: 3px; font-size: 9px; color: #706d64; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .interactive-theme-list > button b { font: 8px/1.45 'DM Mono', monospace; text-align: right; color: #5d6b52; }
