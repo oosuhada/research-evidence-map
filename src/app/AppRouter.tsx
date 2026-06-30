@@ -17,7 +17,7 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
 }
 
 export function AppRouter() {
-  return <AppErrorBoundary><BrowserRouter><Suspense fallback={<main className="garden-shell"><LoadingState /></main>}><Routes>
+  return <AppErrorBoundary><BrowserRouter><Suspense fallback={<main className="garden-shell"><LoadingState fullScreen /></main>}><Routes>
       <Route path="/" element={<HomeRoute />} />
       <Route path="/w/:workspaceId" element={<WorkspaceRoute />} />
       <Route path="/share/:token" element={<ShareRoute />} />
