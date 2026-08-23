@@ -38,3 +38,17 @@ Signal Garden uses open-source packages as implementation primitives. No paid ma
 - Use: interface iconography.
 
 No source code from the original reference sites was copied. Their visual ideas were treated as directional references only.
+
+## Graphite
+
+- Repository: https://github.com/GraphiteEditor/Graphite
+- Steward: Graphite contributors
+- License: Apache-2.0
+- Use: visual/editor information-architecture reference only; no Graphite source code is included.
+
+## Excalidraw
+
+- Repository: https://github.com/excalidraw/excalidraw
+- Authors: Excalidraw contributors
+- License: MIT
+- Use: hand-annotation and editable-thinking visual principles only; no Excalidraw source code is included.

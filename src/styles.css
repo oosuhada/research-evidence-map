@@ -95,6 +95,12 @@ button:focus-visible, .react-flow__node:focus-visible { outline: 2px solid #315a
 @keyframes seedPulse { 50% { scale: 1.4; opacity: .45; } }
 
 .flow-field { height: calc(100% - 45px); position: relative; }
+.cluster-canopy-node { background: transparent !important; border: 0 !important; box-shadow: none !important; pointer-events: none !important; }
+.cluster-canopy-node.selectable:hover, .cluster-canopy-node:focus { box-shadow: none !important; }
+.cluster-canopy { position: relative; width: 100%; height: 100%; color: #64705d; }
+.cluster-canopy svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.cluster-canopy span { position: absolute; left: 18px; top: 12px; font: 500 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .09em; background: rgba(244, 239, 226, .84); padding: 2px 4px; }
+.cluster-canopy b { position: absolute; right: 17px; bottom: 13px; font: 400 7px 'DM Mono', monospace; letter-spacing: .08em; color: #7d826f; background: rgba(244, 239, 226, .82); padding: 2px 4px; }
 .react-flow { background: #f8f4ea; }
 .react-flow__pane { cursor: grab; }
 .react-flow__node { border: 0; background: transparent; box-shadow: none; padding: 0; }
@@ -132,6 +138,7 @@ button:focus-visible, .react-flow__node:focus-visible { outline: 2px solid #315a
 .map-legend .legend-source { background: #7c7a6e; }
 .map-legend .legend-insight { background: #506b52; }
 .map-legend .legend-proof { background: var(--proof); }
+.garden-shell.low-power .analysis-stamp, .garden-shell.low-power .react-flow__edge.animated path { animation: none !important; }
 .analysis-stamp { position: absolute; left: 50%; top: 18px; transform: translateX(-50%); border: 2px solid #657154; color: #657154; padding: 8px 12px; font: 10px 'DM Mono', monospace; text-transform: uppercase; background: rgba(247, 243, 233, .92); z-index: 8; display: flex; gap: 7px; align-items: center; }
 
 .evidence-ledger { position: fixed; right: 0; top: 0; bottom: 0; width: min(430px, 92vw); z-index: 40; background: #efe8d7; border-left: 1px solid #918a79; box-shadow: -24px 0 80px rgba(65, 55, 36, .18); padding: 27px 30px 28px; overflow-y: auto; }
