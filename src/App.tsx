@@ -1,254 +1,415 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
   Controls,
   MiniMap,
   ReactFlow,
   ReactFlowProvider,
-  addEdge,
+  MarkerType,
   useEdgesState,
   useNodesState,
-  type Connection,
   type Edge,
   type Node,
 } from '@xyflow/react';
-import { AnimatePresence, motion } from 'motion/react';
-import { AlertTriangle, ArrowLeft, BrainCircuit, CircleDotDashed, FileText, Link2, Search, Sparkles, Sprout, X } from 'lucide-react';
-import { AmbientBackdrop, Eyebrow, GlassCard, GlowButton, PointerLight, StatusPill } from './lib/design-system';
+import { forceCollide, forceSimulation, forceX, forceY } from 'd3-force';
+import rough from 'roughjs';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import {
+  ArrowDownRight,
+  ArrowUpRight,
+  Asterisk,
+  BookOpenText,
+  Braces,
+  CircleDot,
+  FileText,
+  Highlighter,
+  Link2,
+  Merge,
+  MousePointer2,
+  Scissors,
+  Search,
+  Sprout,
+  X,
+} from 'lucide-react';
 import { challengeResponse, signalGardenSources, streamDeterministicText } from './lib/mock-ai';
 
-type InsightKind = 'Source' | 'Pain Point' | 'Job to Be Done' | 'Product Opportunity' | 'Assumption' | 'Contradicting Evidence';
-type GardenData = {
-  title: string;
+type InsightKind = 'Pain Point' | 'Job to Be Done' | 'Product Opportunity' | 'Assumption' | 'Contradiction';
+
+type Insight = {
+  id: string;
   kind: InsightKind;
+  title: string;
   body: string;
   confidence: number;
   sourceIds: string[];
-  tone?: 'clear' | 'uncertain' | 'contradictory';
+  position: { x: number; y: number };
 };
 
-const insights: Array<{ id: string; position: { x: number; y: number }; data: GardenData }> = [
+const insights: Insight[] = [
   {
-    id: 'pain-trust', position: { x: 570, y: 80 },
-    data: { title: 'The trust tax', kind: 'Pain Point', body: 'Teams spend post-analysis time reconstructing how AI reached an answer.', confidence: 92, sourceIds: ['interview-01', 'meeting-09'], tone: 'clear' },
+    id: 'pain-trust',
+    kind: 'Pain Point',
+    title: 'The trust tax',
+    body: 'Teams lose the time they saved to reconstruct where an AI answer came from.',
+    confidence: 92,
+    sourceIds: ['interview-01', 'meeting-09'],
+    position: { x: 500, y: 80 },
   },
   {
-    id: 'job-audit', position: { x: 870, y: 285 },
-    data: { title: 'Audit without leaving flow', kind: 'Job to Be Done', body: 'When a decision is challenged, show exact source evidence without forcing a context switch.', confidence: 88, sourceIds: ['review-04', 'support-12'], tone: 'clear' },
+    id: 'job-audit',
+    kind: 'Job to Be Done',
+    title: 'Audit without leaving the flow',
+    body: 'Reveal exact evidence at the moment a decision is challenged.',
+    confidence: 88,
+    sourceIds: ['review-04', 'support-12'],
+    position: { x: 800, y: 245 },
   },
   {
-    id: 'opp-evidence', position: { x: 610, y: 480 },
-    data: { title: 'Evidence-on-demand workspace', kind: 'Product Opportunity', body: 'Organize source material around a decision and reveal provenance progressively.', confidence: 84, sourceIds: ['review-04', 'support-12', 'interview-07', 'review-11'], tone: 'clear' },
+    id: 'opp-evidence',
+    kind: 'Product Opportunity',
+    title: 'Evidence-on-demand workspace',
+    body: 'Organize source material around a decision and disclose provenance progressively.',
+    confidence: 84,
+    sourceIds: ['review-04', 'support-12', 'interview-07', 'review-11'],
+    position: { x: 510, y: 430 },
   },
   {
-    id: 'assumption-speed', position: { x: 240, y: 535 },
-    data: { title: 'Provenance won’t slow experts', kind: 'Assumption', body: 'Power users will accept evidence affordances if the default workspace remains fast.', confidence: 53, sourceIds: ['interview-07'], tone: 'uncertain' },
+    id: 'assumption-speed',
+    kind: 'Assumption',
+    title: 'Provenance will not slow experts',
+    body: 'Power users accept evidence affordances if the default workspace stays fast.',
+    confidence: 53,
+    sourceIds: ['interview-07'],
+    position: { x: 210, y: 450 },
   },
   {
-    id: 'contra-smooth', position: { x: 980, y: 540 },
-    data: { title: 'More detail can reduce clarity', kind: 'Contradicting Evidence', body: 'Some users want disagreement surfaced, but not a permanent wall of citations.', confidence: 67, sourceIds: ['review-11'], tone: 'contradictory' },
+    id: 'contra-detail',
+    kind: 'Contradiction',
+    title: 'More detail can reduce clarity',
+    body: 'Some users want disagreement surfaced, but not a permanent wall of citations.',
+    confidence: 67,
+    sourceIds: ['review-11'],
+    position: { x: 900, y: 500 },
   },
 ];
 
-const sourcePositions = [
-  { x: 70, y: 70 }, { x: 78, y: 225 }, { x: 1030, y: 110 }, { x: 340, y: 32 }, { x: 70, y: 390 }, { x: 1040, y: 360 },
-];
+const clusterCenters: Record<string, { x: number; y: number }> = {
+  'Trust gap': { x: 160, y: 150 },
+  Traceability: { x: 1020, y: 190 },
+  'Decision context': { x: 160, y: 520 },
+  Contradiction: { x: 1020, y: 520 },
+};
 
-function SourceNodeContent({ source, index }: { source: (typeof signalGardenSources)[number]; index: number }) {
+type SeedDatum = { id: string; cluster: string; x?: number; y?: number };
+
+function clusteredSeedPositions() {
+  const points: SeedDatum[] = signalGardenSources.map((source, index) => ({
+    id: source.id,
+    cluster: source.cluster,
+    x: 600 + Math.cos(index * 1.7) * 160,
+    y: 330 + Math.sin(index * 1.7) * 120,
+  }));
+
+  const simulation = forceSimulation(points)
+    .force('x', forceX<SeedDatum>((datum) => clusterCenters[datum.cluster]?.x ?? 600).strength(0.34))
+    .force('y', forceY<SeedDatum>((datum) => clusterCenters[datum.cluster]?.y ?? 330).strength(0.34))
+    .force('collision', forceCollide<SeedDatum>(92).strength(0.88))
+    .stop();
+
+  for (let tick = 0; tick < 140; tick += 1) simulation.tick();
+  return new Map(points.map((point) => [point.id, { x: point.x ?? 0, y: point.y ?? 0 }]));
+}
+
+function ProofMark({ kind }: { kind: 'circle' | 'underline' | 'strike' }) {
+  const ref = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    const svg = ref.current;
+    if (!svg) return;
+    svg.replaceChildren();
+    const rc = rough.svg(svg);
+    const options = { stroke: '#d04937', strokeWidth: 1.4, roughness: 1.7, bowing: 1.2 };
+    const mark = kind === 'circle'
+      ? rc.ellipse(28, 18, 48, 28, options)
+      : kind === 'underline'
+        ? rc.line(4, 28, 54, 24, options)
+        : rc.line(4, 4, 54, 30, options);
+    svg.appendChild(mark);
+  }, [kind]);
+
+  return <svg className="proof-mark" ref={ref} viewBox="0 0 58 36" aria-hidden="true" />;
+}
+
+function SeedCard({ source, index }: { source: (typeof signalGardenSources)[number]; index: number }) {
   return (
-    <div className="source-node-inner">
-      <span className="node-kicker"><FileText size={11} /> Source 0{index + 1}</span>
-      <strong>{source.source}</strong>
-      <p>“{source.quote}”</p>
-      <span className="cluster-tag">{source.cluster}</span>
-    </div>
+    <article className="seed-card">
+      <div className="seed-index">0{index + 1}</div>
+      <div className="seed-copy">
+        <span>{source.source}</span>
+        <p>“{source.quote}”</p>
+      </div>
+      <CircleDot className="seed-pin" size={18} />
+    </article>
   );
 }
 
-function InsightNodeContent({ data }: { data: GardenData }) {
-  const icon = data.kind === 'Contradicting Evidence' ? <AlertTriangle size={12} /> : data.kind === 'Assumption' ? <CircleDotDashed size={12} /> : <Sparkles size={12} />;
+function InsightCard({ insight }: { insight: Insight }) {
+  const isContradiction = insight.kind === 'Contradiction';
+  const isAssumption = insight.kind === 'Assumption';
   return (
-    <div className="insight-node-inner">
-      <span className="node-kicker">{icon}{data.kind}</span>
-      <strong>{data.title}</strong>
-      <p>{data.body}</p>
-      <div className="confidence-line"><span>Evidence confidence</span><b>{data.confidence}%</b></div>
-      <div className="confidence-track"><i style={{ width: `${data.confidence}%` }} /></div>
-    </div>
+    <article className={`insight-card kind-${insight.kind.toLowerCase().replaceAll(' ', '-')} ${isContradiction ? 'is-contradiction' : ''}`}>
+      <div className="insight-topline">
+        <span>{insight.kind}</span>
+        <b>{insight.confidence}%</b>
+      </div>
+      <h3>{insight.title}</h3>
+      <p>{insight.body}</p>
+      <div className="evidence-rule"><i style={{ width: `${insight.confidence}%` }} /></div>
+      {isContradiction ? <ProofMark kind="strike" /> : isAssumption ? <ProofMark kind="circle" /> : null}
+    </article>
   );
 }
 
 function Garden() {
+  const reducedMotion = useReducedMotion();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
-  const [phase, setPhase] = useState<'empty' | 'analyzing' | 'complete'>('empty');
+  const [phase, setPhase] = useState<'empty' | 'seeding' | 'growing' | 'complete'>('empty');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [challenge, setChallenge] = useState('');
   const [challenging, setChallenging] = useState(false);
+  const [fieldMode, setFieldMode] = useState<'clustered' | 'merged' | 'split'>('clustered');
   const runRef = useRef(0);
+  const seedPositions = useMemo(() => clusteredSeedPositions(), []);
 
-  const selectedInsight = useMemo(() => insights.find((item) => item.id === selectedId)?.data ?? null, [selectedId]);
-  const relatedSources = useMemo(() => selectedInsight ? signalGardenSources.filter((source) => selectedInsight.sourceIds.includes(source.id)) : [], [selectedInsight]);
+  const selectedInsight = useMemo(() => insights.find((item) => item.id === selectedId) ?? null, [selectedId]);
+  const selectedSource = useMemo(() => signalGardenSources.find((item) => item.id === selectedId) ?? null, [selectedId]);
+  const relatedSources = useMemo(
+    () => selectedInsight ? signalGardenSources.filter((source) => selectedInsight.sourceIds.includes(source.id)) : [],
+    [selectedInsight],
+  );
 
-  const onConnect = useCallback((connection: Connection) => setEdges((current) => addEdge(connection, current)), [setEdges]);
+  const makeSourceNode = useCallback((index: number, compact = false): Node => {
+    const source = signalGardenSources[index];
+    const position = compact
+      ? seedPositions.get(source.id) ?? { x: 120 + index * 90, y: 180 }
+      : { x: 505 + Math.cos(index * 1.08) * 120, y: 280 + Math.sin(index * 1.08) * 90 };
+    return {
+      id: source.id,
+      position,
+      data: { label: <SeedCard source={source} index={index} /> },
+      className: `field-node seed-node ${compact ? 'seed-grown' : 'seed-arriving'}`,
+      style: { width: compact ? 222 : 190 },
+    };
+  }, [seedPositions]);
 
   const analyze = async () => {
     runRef.current += 1;
     const runId = runRef.current;
-    setPhase('analyzing');
     setSelectedId(null);
     setChallenge('');
     setEdges([]);
     setNodes([]);
+    setPhase('seeding');
 
     for (let index = 0; index < signalGardenSources.length; index += 1) {
-      await new Promise((resolve) => window.setTimeout(resolve, 150));
+      if (!reducedMotion) await new Promise((resolve) => window.setTimeout(resolve, 115));
       if (runId !== runRef.current) return;
-      const source = signalGardenSources[index];
-      setNodes((current) => [
-        ...current,
-        {
-          id: source.id,
-          position: sourcePositions[index],
-          data: { label: <SourceNodeContent source={source} index={index} /> },
-          className: 'garden-node source-node',
-          style: { width: 250 },
-        },
-      ]);
+      setNodes((current) => [...current, makeSourceNode(index)]);
     }
 
-    await new Promise((resolve) => window.setTimeout(resolve, 420));
+    if (!reducedMotion) await new Promise((resolve) => window.setTimeout(resolve, 320));
     if (runId !== runRef.current) return;
-
-    setNodes((current) => [
-      ...current.map((node, index) => ({
-        ...node,
-        position: {
-          x: index < 3 ? 105 + index * 34 : 1040 - (index - 3) * 38,
-          y: 145 + (index % 3) * 180,
-        },
-        style: { ...node.style, width: 230, transition: 'transform 900ms cubic-bezier(.2,.8,.2,1)' },
-      })),
-      ...insights.map((item) => ({
-        id: item.id,
-        position: item.position,
-        data: { label: <InsightNodeContent data={item.data} /> },
-        className: `garden-node insight-node tone-${item.data.tone ?? 'clear'}`,
-        style: { width: 275 },
+    setPhase('growing');
+    setNodes([
+      ...signalGardenSources.map((_, index) => makeSourceNode(index, true)),
+      ...insights.map((insight) => ({
+        id: insight.id,
+        position: insight.position,
+        data: { label: <InsightCard insight={insight} /> },
+        className: 'field-node taxonomy-node',
+        style: { width: 250 },
       })),
     ]);
 
-    const nextEdges: Edge[] = [
-      ['interview-01', 'pain-trust'], ['meeting-09', 'pain-trust'], ['review-04', 'job-audit'], ['support-12', 'job-audit'],
-      ['pain-trust', 'opp-evidence'], ['job-audit', 'opp-evidence'], ['interview-07', 'assumption-speed'], ['assumption-speed', 'opp-evidence'],
-      ['review-11', 'contra-smooth'], ['contra-smooth', 'opp-evidence'],
-    ].map(([source, target], index) => ({
-      id: `edge-${index}`, source, target, animated: index < 6, className: index >= 8 ? 'edge-contradiction' : 'evidence-edge',
-    }));
-    setEdges(nextEdges);
+    const links: Array<[string, string, boolean]> = [
+      ['interview-01', 'pain-trust', false], ['meeting-09', 'pain-trust', false],
+      ['review-04', 'job-audit', false], ['support-12', 'job-audit', false],
+      ['pain-trust', 'opp-evidence', false], ['job-audit', 'opp-evidence', false],
+      ['interview-07', 'assumption-speed', false], ['assumption-speed', 'opp-evidence', false],
+      ['review-11', 'contra-detail', true], ['contra-detail', 'opp-evidence', true],
+    ];
+    setEdges(links.map(([source, target, contradictory], index) => ({
+      id: `e-${index}`,
+      source,
+      target,
+      animated: !reducedMotion && !contradictory,
+      className: contradictory ? 'proof-edge' : 'ink-edge',
+      markerEnd: { type: MarkerType.ArrowClosed, width: 14, height: 14 },
+    })));
+
+    if (!reducedMotion) await new Promise((resolve) => window.setTimeout(resolve, 420));
     setPhase('complete');
+  };
+
+  const rearrange = (mode: 'merged' | 'split') => {
+    setFieldMode(mode);
+    setNodes((current) => current.map((node, index) => {
+      if (!node.id.includes('-') || node.id.startsWith('pain-') || node.id.startsWith('job-') || node.id.startsWith('opp-') || node.id.startsWith('assumption-') || node.id.startsWith('contra-')) return node;
+      if (mode === 'merged') return { ...node, position: { x: 480 + (index % 3) * 100, y: 600 + Math.floor(index / 3) * 70 } };
+      const source = signalGardenSources.find((item) => item.id === node.id);
+      const center = source ? clusterCenters[source.cluster] : { x: 500, y: 300 };
+      return { ...node, position: { x: center.x + (index % 2) * 130, y: center.y + (index % 3) * 90 } };
+    }));
   };
 
   const challengeOpportunity = async () => {
     setChallenge('');
     setChallenging(true);
     await streamDeterministicText(challengeResponse, {
-      delay: 15,
-      chunkSize: 4,
+      delay: reducedMotion ? 0 : 13,
+      chunkSize: reducedMotion ? challengeResponse.length : 5,
       onChunk: (chunk) => setChallenge((current) => current + chunk),
     });
     setChallenging(false);
   };
 
+  const statusCopy = phase === 'empty' ? 'FIELD NOTE 00 / READY' : phase === 'complete' ? 'FIELD NOTE 06 / MAPPED' : 'FIELD NOTE / ANALYZING';
+
   return (
     <main className="garden-shell">
-      <AmbientBackdrop accent="122 255 192" />
-      <PointerLight />
-      <header className="garden-header">
-        <div className="brand-lockup">
-          <a href="http://localhost:3100" aria-label="Back to launcher"><ArrowLeft size={16} /></a>
-          <div><strong>Signal Garden</strong><span>AI Product Discovery Canvas</span></div>
-        </div>
-        <div className="header-actions">
-          <StatusPill status={phase === 'empty' ? 'ready' : phase === 'analyzing' ? 'loading' : 'complete'}>
-            {phase === 'empty' ? 'Sample ready' : phase === 'analyzing' ? 'Finding signal structure' : 'Evidence graph complete'}
-          </StatusPill>
-          <GlowButton onClick={analyze} disabled={phase === 'analyzing'}>{phase === 'empty' ? 'Analyze Sample' : 'Analyze Again'}</GlowButton>
-        </div>
+      <header className="masthead">
+        <div className="journal-mark"><Sprout size={20} /><span>Signal Garden</span></div>
+        <div className="edition">AI PRODUCT DISCOVERY CANVAS<br />RESEARCH EDITION · 2026</div>
+        <div className="masthead-status"><i className={phase === 'complete' ? 'done' : ''} />{statusCopy}</div>
       </header>
 
-      <section className="garden-intro">
+      <section className="editorial-intro">
+        <div className="folio">01</div>
         <div>
-          <Eyebrow>From scattered voice to product evidence</Eyebrow>
-          <h1>Turn customer noise into <em>traceable opportunities.</em></h1>
+          <span className="kicker">CUSTOMER EVIDENCE / OPPORTUNITY CARTOGRAPHY</span>
+          <h1>Turn scattered customer signals into <em>evidence-backed product opportunities.</em></h1>
         </div>
-        <p>Customer interviews, reviews, support tickets, and meeting notes converge into a decision-ready evidence landscape—without flattening disagreement.</p>
+        <aside>
+          <p>Six source fragments. Four evidence families. One product decision.</p>
+          <button className="ink-button" onClick={analyze} disabled={phase === 'seeding' || phase === 'growing'}>
+            <Highlighter size={15} /> {phase === 'empty' ? 'Analyze sample' : 'Re-run field study'} <ArrowDownRight size={15} />
+          </button>
+        </aside>
       </section>
 
-      <GlassCard className="garden-stage" intensity="clear">
-        <div className="canvas-toolbar">
-          <span><Sprout size={14} /> Discovery field</span>
-          <div><span>Drag</span><span>Pan</span><span>Zoom</span></div>
+      <section className="map-frame">
+        <div className="map-index">
+          <span>FIELD MAP / TRUST & TRACEABILITY</span>
+          <div className="map-actions">
+            <button onClick={() => rearrange('merged')} className={fieldMode === 'merged' ? 'active' : ''}><Merge size={13} /> Merge evidence</button>
+            <button onClick={() => rearrange('split')} className={fieldMode === 'split' ? 'active' : ''}><Scissors size={13} /> Split clusters</button>
+          </div>
         </div>
+
         {phase === 'empty' ? (
-          <motion.div className="empty-state" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <div className="empty-orbit"><BrainCircuit size={34} /><i /><i /><i /></div>
-            <h2>Six raw signals are waiting.</h2>
-            <p>Run the deterministic analysis to reveal evidence islands, assumptions, and contradictions.</p>
-            <GlowButton onClick={analyze}>Analyze Sample</GlowButton>
-          </motion.div>
+          <div className="empty-field">
+            <div className="seed-specimen">
+              {Array.from({ length: 6 }).map((_, index) => <i key={index} style={{ '--i': index } as React.CSSProperties} />)}
+              <Sprout size={32} />
+            </div>
+            <div>
+              <span>UNPROCESSED MATERIAL</span>
+              <h2>Six signals are waiting to be planted.</h2>
+              <p>Interviews, support tickets, product reviews, and meeting notes will become a navigable evidence map.</p>
+            </div>
+          </div>
         ) : (
-          <div className="flow-wrap">
+          <div className="flow-field">
             <ReactFlow
               nodes={nodes}
               edges={edges}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={(_, node) => { if (node.id.startsWith('pain-') || node.id.startsWith('job-') || node.id.startsWith('opp-') || node.id.startsWith('assumption-') || node.id.startsWith('contra-')) setSelectedId(node.id); }}
+              onNodeClick={(_, node) => setSelectedId(node.id)}
               fitView
-              fitViewOptions={{ padding: 0.12, duration: 900 }}
+              fitViewOptions={{ padding: 0.15, duration: reducedMotion ? 0 : 700 }}
               minZoom={0.45}
-              maxZoom={1.8}
+              maxZoom={1.65}
               proOptions={{ hideAttribution: true }}
             >
-              <Background color="rgba(202,255,230,.12)" gap={26} size={1} />
-              <Controls showInteractive={false} />
-              <MiniMap pannable zoomable nodeStrokeWidth={2} />
+              <Background color="#d7d0bf" gap={28} size={1} />
+              <Controls showInteractive={false} position="bottom-left" />
+              <MiniMap position="bottom-right" pannable zoomable nodeStrokeWidth={2} />
             </ReactFlow>
-            {phase === 'analyzing' ? <div className="analysis-toast"><Search size={13} /> extracting meaning from source language…</div> : null}
+            <div className="map-legend">
+              <span><i className="legend-source" />source</span>
+              <span><i className="legend-insight" />synthesis</span>
+              <span><i className="legend-proof" />contradiction</span>
+            </div>
+            {(phase === 'seeding' || phase === 'growing') ? (
+              <motion.div className="analysis-stamp" initial={{ opacity: 0, rotate: -3 }} animate={{ opacity: 1, rotate: -1 }}>
+                <Search size={13} /> {phase === 'seeding' ? 'cataloguing source language' : 'growing evidence clusters'}
+              </motion.div>
+            ) : null}
           </div>
         )}
-      </GlassCard>
+      </section>
 
       <AnimatePresence>
-        {selectedInsight ? (
-          <motion.aside className="inspector" initial={{ x: 440, opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: 440, opacity: 0 }} transition={{ type: 'spring', damping: 30, stiffness: 260 }}>
-            <GlassCard className="inspector-panel" intensity={selectedInsight.tone === 'contradictory' ? 'contradictory' : selectedInsight.tone === 'uncertain' ? 'uncertain' : 'clear'}>
-              <button className="close-button" onClick={() => setSelectedId(null)} aria-label="Close evidence inspector"><X size={16} /></button>
-              <span className="inspector-kicker">Evidence inspector · {selectedInsight.kind}</span>
-              <h2>{selectedInsight.title}</h2>
-              <p className="inspector-body">{selectedInsight.body}</p>
-              <div className="confidence-readout"><strong>{selectedInsight.confidence}%</strong><span>evidence confidence</span></div>
-              <div className="source-stack">
-                <h3>Source trail</h3>
-                {relatedSources.map((source) => (
-                  <a key={source.id} href={`#${source.id}`} onClick={(event) => event.preventDefault()}>
-                    <div><Link2 size={12} /><span>{source.source}</span></div>
-                    <p>{source.quote}</p>
-                  </a>
-                ))}
-              </div>
-              {selectedInsight.kind === 'Product Opportunity' ? (
-                <div className="challenge-box">
-                  <button onClick={challengeOpportunity} disabled={challenging}><AlertTriangle size={14} /> Challenge This Opportunity</button>
-                  {challenge ? <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{challenge}<span className={challenging ? 'stream-caret' : ''} /></motion.p> : null}
+        {(selectedInsight || selectedSource) ? (
+          <motion.aside
+            className="evidence-ledger"
+            initial={{ x: 430 }}
+            animate={{ x: 0 }}
+            exit={{ x: 430 }}
+            transition={{ duration: reducedMotion ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <button className="ledger-close" onClick={() => setSelectedId(null)} aria-label="Close evidence inspector"><X size={17} /></button>
+            <div className="ledger-heading">
+              <BookOpenText size={18} />
+              <span>EVIDENCE LEDGER / SOURCE TRACE</span>
+            </div>
+
+            {selectedInsight ? (
+              <>
+                <div className="ledger-folio">{selectedInsight.kind.toUpperCase()}</div>
+                <h2>{selectedInsight.title}</h2>
+                <p className="ledger-summary">{selectedInsight.body}</p>
+                <div className="confidence-sheet">
+                  <strong>{selectedInsight.confidence}</strong><span>%</span>
+                  <p>confidence from {selectedInsight.sourceIds.length} traced source{selectedInsight.sourceIds.length > 1 ? 's' : ''}</p>
+                  <ProofMark kind="underline" />
                 </div>
-              ) : null}
-            </GlassCard>
+                <div className="source-ledger-list">
+                  {relatedSources.map((source, index) => (
+                    <button key={source.id} onClick={() => setSelectedId(source.id)}>
+                      <span>0{index + 1}</span>
+                      <div><b>{source.source}</b><p>“{source.quote}”</p></div>
+                      <ArrowUpRight size={13} />
+                    </button>
+                  ))}
+                </div>
+                {selectedInsight.kind === 'Product Opportunity' ? (
+                  <div className="challenge-note">
+                    <div className="challenge-title"><Asterisk size={16} /><b>Margin challenge</b></div>
+                    <button onClick={challengeOpportunity} disabled={challenging}>Challenge this opportunity <Braces size={14} /></button>
+                    {challenge ? <p>{challenge}<span className={challenging ? 'typing-caret' : ''} /></p> : <small>Ask the model to actively seek evidence that weakens this opportunity.</small>}
+                  </div>
+                ) : null}
+              </>
+            ) : selectedSource ? (
+              <>
+                <div className="ledger-folio">PRIMARY SOURCE</div>
+                <h2>{selectedSource.source}</h2>
+                <blockquote>“{selectedSource.quote}”</blockquote>
+                <div className="source-meta"><FileText size={16} /><span>Cluster</span><b>{selectedSource.cluster}</b></div>
+                <button className="source-return" onClick={() => setSelectedId(null)}><MousePointer2 size={14} /> Return to field map</button>
+              </>
+            ) : null}
           </motion.aside>
         ) : null}
       </AnimatePresence>
+
+      <footer className="garden-footer">
+        <span>METHOD / SEMANTIC CLUSTERING + HUMAN-READABLE PROVENANCE</span>
+        <span><Link2 size={12} /> SOURCES REMAIN TRACEABLE</span>
+      </footer>
     </main>
   );
 }

@@ -1,6 +1,20 @@
 # Signal Garden
 
-Standalone high-fidelity prototype for an AI product-discovery canvas that turns customer evidence into traceable opportunities.
+**AI Product Discovery Canvas** — a standalone high-fidelity prototype that turns scattered interviews, reviews, support tickets, and meeting notes into a traceable evidence map.
+
+## Art direction
+
+Signal Garden is intentionally an editorial research instrument rather than a SaaS dashboard. The UI uses warm paper, field-note typography, botanical indexing, proof marks, and cartographic relationships. Sources begin as seeds, then grow into evidence clusters whose density and spatial position communicate agreement and contradiction.
+
+## Core interactions
+
+- Deterministic AI analysis that streams raw sources into the field map.
+- `d3-force` clustering for the source evidence seeds.
+- React Flow pan, zoom, drag, and source-to-insight traceability.
+- Rough.js proof marks for assumptions and contradictory evidence.
+- Evidence ledger with source provenance and a streaming challenge response.
+- Manual merge/split cluster controls.
+- Reduced-motion and responsive mobile layouts.
 
 ## Run locally
 
