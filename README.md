@@ -38,6 +38,8 @@ Create research workspace
 - Optional OpenAI-compatible extraction/challenge adapter.
 - Deterministic local adapter when no external model is configured.
 - Exportable evidence map and source register.
+- Searchable/filterable evidence review queue with bulk human-review actions.
+- Deterministic Research Brief export with cluster/source coverage, opportunity hypotheses, and contradiction summary.
 - Reduced-motion, lower-power, keyboard, mobile, and accessibility handling.
 - First-run guided demo that creates synthetic source documents through the real API, runs analysis, records reviewed evidence, creates an opportunity and contradiction, and walks through the resulting workspace.
 
