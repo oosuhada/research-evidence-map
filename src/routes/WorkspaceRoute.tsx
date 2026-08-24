@@ -4,6 +4,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { GardenCanvas } from '../canvas/GardenCanvas';
 import { EmptyState, ErrorState, LoadingState } from '../components/RouteState';
+import { WorkspaceGuide } from '../components/WorkspaceGuide';
 import { ClusterControls } from '../features/clusters/ClusterControls';
 import { EvidenceInspector } from '../features/evidence/EvidenceInspector';
 import { EvidenceList } from '../features/evidence/EvidenceList';
@@ -37,6 +38,8 @@ function WorkspaceRouteInner({ mobile }: { mobile: boolean }) {
   const [detail, setDetail] = useState<WorkspaceDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [guideOpen, setGuideOpen] = useState(() => search.get('tour') === '1');
+  const [guideStep, setGuideStep] = useState(0);
   const lowPower = useMemo(() => {
     const nav = navigator as Navigator & { deviceMemory?: number };
     return (nav.hardwareConcurrency > 0 && nav.hardwareConcurrency <= 4) || Boolean(nav.deviceMemory && nav.deviceMemory <= 4);
@@ -90,7 +93,7 @@ function WorkspaceRouteInner({ mobile }: { mobile: boolean }) {
 
   return <main className={`garden-shell workspace-shell ${lowPower ? 'low-power' : ''}`}>
     <header className="masthead"><div className="journal-mark"><Sprout size={20} /><span>Research Evidence Map</span></div><div className="edition">{detail.workspace.name.toUpperCase()}<br />CUSTOMER RESEARCH WORKBENCH</div><div className="masthead-status"><i className={latestRun?.status === 'succeeded' ? 'done' : ''} />{detail.workspace.mode.toUpperCase()}{lowPower ? ' · ECO' : ''}</div></header>
-    <section className="workspace-hero"><div><Link to="/" className="back-link"><ArrowLeft size={13} />Research archive</Link><span className="kicker">WORKSPACE / {detail.workspace.id.slice(0, 8)}</span><h1>{detail.workspace.name}</h1><p>{detail.workspace.description || 'No research question has been recorded for this workspace yet.'}</p></div><aside><div><ShieldCheck size={16} /><span>LOCAL REFERENCE MODE</span><p>Sources remain in the configured local database. Retention guidance: {detail.retention_days} days. Delete sources or the workspace whenever required.</p></div><div className="history-actions"><button onClick={() => void history('undo')} disabled={!canUndo || Boolean(busy)}><Undo2 size={14} />Undo</button><button onClick={() => void history('redo')} disabled={!canRedo || Boolean(busy)}><Redo2 size={14} />Redo</button></div></aside></section>
+    <section className="workspace-hero"><div><Link to="/" className="back-link"><ArrowLeft size={13} />Research archive</Link><span className="kicker">WORKSPACE / {detail.workspace.id.slice(0, 8)}</span><h1>{detail.workspace.name}</h1><p>{detail.workspace.description || 'No research question has been recorded for this workspace yet.'}</p><button type="button" className="guide-trigger" onClick={() => { setGuideStep(0); setGuideOpen(true); }}>How to use this workspace</button></div><aside><div><ShieldCheck size={16} /><span>LOCAL REFERENCE MODE</span><p>Sources remain in the configured local database. Retention guidance: {detail.retention_days} days. Delete sources or the workspace whenever required.</p></div><div className="history-actions"><button onClick={() => void history('undo')} disabled={!canUndo || Boolean(busy)}><Undo2 size={14} />Undo</button><button onClick={() => void history('redo')} disabled={!canRedo || Boolean(busy)}><Redo2 size={14} />Redo</button></div></aside></section>
 
     {error ? <div className="page-error" role="alert">{error}<button onClick={() => setError(null)}>Dismiss</button></div> : null}
 
@@ -111,6 +114,7 @@ function WorkspaceRouteInner({ mobile }: { mobile: boolean }) {
     <div id="exports"><ExportPanel workspaceId={workspaceId} detail={detail} onChanged={refresh} /></div>
 
     {selectedEvidenceId ? <EvidenceInspector detail={detail} evidenceId={selectedEvidenceId} onClose={() => updateSearch({ evidence: null })} onChanged={refresh} /> : null}
+    {guideOpen ? <WorkspaceGuide step={guideStep} onStep={setGuideStep} onClose={() => setGuideOpen(false)} /> : null}
     <footer className="garden-footer"><span>METHOD / SOURCE → FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY</span><span><History size={12} /> HUMAN EDITS ARE AUDITED + REVERSIBLE</span></footer>
   </main>;
 }
