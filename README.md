@@ -288,7 +288,7 @@ The product can accept real research material, but production use with sensitive
 
 ---
 
-## Architecture / 아키텍처
+## Architecture & Topics / 아키텍처 및 주제
 
 ```text
 src/
@@ -318,6 +318,12 @@ SOURCE DOCUMENT
 → OPPORTUNITY
 → HUMAN DECISION
 ```
+
+**Architecture topics / 아키텍처 주제**  
+[`research-ops`](https://github.com/topics/research-ops) · [`knowledge-graph`](https://github.com/topics/knowledge-graph) · [`provenance`](https://github.com/topics/provenance) · [`human-in-the-loop`](https://github.com/topics/human-in-the-loop) · [`decision-intelligence`](https://github.com/topics/decision-intelligence)
+
+**Implementation stack / 구현 스택**  
+[`react`](https://github.com/topics/react) · [`typescript`](https://github.com/topics/typescript) · [`fastapi`](https://github.com/topics/fastapi) · [`postgresql`](https://github.com/topics/postgresql) · [`react-flow`](https://github.com/topics/react-flow)
 
 ---
 
