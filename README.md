@@ -260,73 +260,6 @@ The exact source inspector remains available from every evidence item.
 
 ---
 
-## AI boundary / AI의 역할 경계
-
-AI output is treated as a proposal, not accepted research truth.
-
-AI output은 확정된 리서치 사실이 아니라 **proposal**로 취급합니다.
-
-The default local adapter is deterministic so that the full workflow can run without credentials. When an OpenAI-compatible provider is configured, structured output is schema-validated and still enters the same human-review flow.
-
-기본 local adapter는 deterministic하게 동작하므로 외부 credential 없이 전체 workflow를 실행할 수 있습니다. OpenAI-compatible provider를 설정해도 structured output은 schema validation을 거친 뒤 동일한 human-review flow로 들어갑니다.
-
-Provider, model, prompt version, schema version, token counts, and failure state are stored so generated synthesis can be distinguished from source material and human edits.
-
-provider, model, prompt version, schema version, token count, failure state를 저장해 생성된 종합 결과와 원문, 사람의 수정을 구분합니다.
-
----
-
-## Data honesty / 데이터 정직성
-
-The guided demo uses synthetic data. Synthetic examples are explicitly illustrative and are never presented as customer validation, observed usage, revenue, or product-market-fit evidence.
-
-가이드 데모는 synthetic data를 사용합니다. 가상 예시는 설명용일 뿐이며 실제 고객검증, 사용량, 매출, product-market fit 증거처럼 제시하지 않습니다.
-
-The product can accept real research material, but production use with sensitive customer research would require stronger authentication, organization authorization, monitoring, backup, and incident procedures.
-
-실제 리서치 자료도 입력할 수 있지만 민감한 고객 리서치를 production 환경에서 사용하려면 authentication, organization authorization, monitoring, backup, incident procedure를 더 강화해야 합니다.
-
----
-
-## Architecture & Topics / 아키텍처 및 주제
-
-```text
-src/
-  api/            browser API client
-  canvas/         evidence-map visualization
-  components/     shared UI + language toggle
-  features/       import, review, cluster, opportunity, decision, brief, export
-  i18n/           English / Korean locale state
-  routes/         home, workspace, read-only share
-  schemas/        runtime domain validation
-  state/          workspace UI state + history
-
-api/
-  app/            FastAPI service, persistence, provider adapters
-  alembic/        database migrations
-```
-
-The domain chain is explicit:
-
-domain 흐름을 명시적으로 유지합니다.
-
-```text
-SOURCE DOCUMENT
-→ SOURCE FRAGMENT
-→ EVIDENCE
-→ CLUSTER
-→ OPPORTUNITY
-→ HUMAN DECISION
-```
-
-**Architecture topics / 아키텍처 주제**  
-[`research-ops`](https://github.com/topics/research-ops) · [`knowledge-graph`](https://github.com/topics/knowledge-graph) · [`provenance`](https://github.com/topics/provenance) · [`human-in-the-loop`](https://github.com/topics/human-in-the-loop) · [`decision-intelligence`](https://github.com/topics/decision-intelligence)
-
-**Implementation stack / 구현 스택**  
-[`react`](https://github.com/topics/react) · [`typescript`](https://github.com/topics/typescript) · [`fastapi`](https://github.com/topics/fastapi) · [`postgresql`](https://github.com/topics/postgresql) · [`react-flow`](https://github.com/topics/react-flow)
-
----
-
 ## Design decisions / 설계 원칙
 
 **Why explicit review state?** Extracted evidence can be wrong. Proposed evidence therefore moves through human review rather than being silently promoted to fact.
@@ -349,58 +282,13 @@ SOURCE DOCUMENT
 
 **왜 deterministic mode를 유지하는가?** 외부 모델 없이도 workflow 전체를 관찰할 수 있어야 하며 domain behavior가 생성형 텍스트 뒤에 숨지 않아야 합니다.
 
----
+## Architecture & Topics / 아키텍처 및 주제
 
-## Local development / 로컬 개발
+**Architecture / 아키텍처**  
+[`research-ops`](https://github.com/topics/research-ops) · [`knowledge-graph`](https://github.com/topics/knowledge-graph) · [`provenance`](https://github.com/topics/provenance) · [`event-sourcing`](https://github.com/topics/event-sourcing) · [`versioned-state`](https://github.com/topics/versioned-state) · [`human-in-the-loop`](https://github.com/topics/human-in-the-loop) · [`full-stack`](https://github.com/topics/full-stack) · [`data-lineage`](https://github.com/topics/data-lineage)
 
-```bash
-corepack pnpm install
-docker compose up -d
-corepack pnpm dev
-```
+**Project context / 프로젝트 맥락**  
+[`user-research`](https://github.com/topics/user-research) · [`research-synthesis`](https://github.com/topics/research-synthesis) · [`decision-intelligence`](https://github.com/topics/decision-intelligence) · [`evidence-based-decision-making`](https://github.com/topics/evidence-based-decision-making) · [`knowledge-management`](https://github.com/topics/knowledge-management) · [`product-management`](https://github.com/topics/product-management) · [`explainable-ai`](https://github.com/topics/explainable-ai) · [`auditability`](https://github.com/topics/auditability) · [`qualitative-research`](https://github.com/topics/qualitative-research)
 
-Default web address / 기본 주소:
-
-```text
-http://localhost:3101
-```
-
-Useful checks / 주요 검증 명령:
-
-```bash
-corepack pnpm typecheck
-corepack pnpm lint
-corepack pnpm test
-corepack pnpm build
-```
-
----
-
-## Project status / 프로젝트 상태
-
-This is a working full-stack product experiment, not a mature multi-tenant SaaS. The current work focuses on verifying whether a narrow **verification-first product-decision workflow** creates enough real value for lean product teams.
-
-현재 프로젝트는 작동하는 full-stack product experiment이며 성숙한 multi-tenant SaaS라고 주장하지 않습니다. 지금의 핵심 목표는 **verification-first product-decision workflow**가 실제 lean product team에게 충분한 가치를 만드는지 검증하는 것입니다.
-
-The most important unresolved questions are customer-side, not technical:
-
-현재 가장 중요한 미해결 질문은 기술보다 고객 쪽에 있습니다.
-
-- How often do Korean B2B SaaS product teams re-check AI analysis against raw sources?  
-  한국 B2B SaaS 제품팀은 AI 분석을 원문과 얼마나 자주 다시 대조하는가?
-- How much time does that verification take?  
-  그 검증에 실제로 얼마나 많은 시간이 드는가?
-- Is contradiction handling useful or documentation overhead?  
-  contradiction 관리가 가치인가, 문서화 부담인가?
-- Is a decision-time verification snapshot a repeated workflow or a niche feature?  
-  decision-time verification snapshot이 반복 workflow인가, 일부 상황의 niche feature인가?
-- Who owns the budget, and what existing tool spend can this replace or complement?  
-  누가 구매 예산을 가지고 있으며 어떤 기존 tool spend를 대체하거나 보완할 수 있는가?
-
----
-
-## Credits / 크레딧
-
-Third-party libraries and visual references are documented in [`CREDITS.md`](CREDITS.md) and the supporting `docs/` notes.
-
-사용한 third-party library와 visual reference는 [`CREDITS.md`](CREDITS.md) 및 `docs/` 문서에 기록되어 있습니다.
+**Implementation stack / 구현 스택**  
+[`react`](https://github.com/topics/react) · [`typescript`](https://github.com/topics/typescript) · [`react-flow`](https://github.com/topics/react-flow) · [`d3`](https://github.com/topics/d3) · [`roughjs`](https://github.com/topics/roughjs) · [`fastapi`](https://github.com/topics/fastapi) · [`postgresql`](https://github.com/topics/postgresql) · [`zod`](https://github.com/topics/zod) · [`vite`](https://github.com/topics/vite)
