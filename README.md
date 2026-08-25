@@ -1,26 +1,80 @@
 # Research Evidence Map
 
-The product now includes a deterministic **Research Operations / Research Memory** layer across saved workspaces. It provides cross-workspace evidence/source/theme/opportunity search, recurring-vs-new signal comparison for the latest research, a derived unresolved research/evidence-gap backlog, repeated-theme detection, and opportunity prioritization based on human review, source coverage, and explicit contradictions rather than fabricated AI confidence scores.
+> **Reduce the AI verification tax between generated insight and human decision.**
 
-Research Evidence Map is a full-stack **AI research verification and product-decision workspace**. It is designed for product teams that can already generate summaries quickly, but still need to verify what the AI concluded, inspect conflicting evidence, and preserve the evidence that existed when a product decision was made.
+Research Evidence Map is a full-stack **AI research verification and product-decision workspace** for teams that can already generate summaries quickly, but still have to verify what the AI concluded before they are willing to act on it.
 
-## Product thesis
+It does not try to win by generating more AI output. It makes the path from raw evidence to a human-owned decision inspectable:
 
-The bottleneck is moving.
+```text
+SOURCE
+  ↓
+ADDRESSABLE FRAGMENT
+  ↓
+AI-PROPOSED EVIDENCE
+  ↓
+HUMAN REVIEW
+  ↓
+CONTRADICTION / CHALLENGE
+  ↓
+OPPORTUNITY
+  ↓
+HUMAN DECISION RECORD
+```
 
-AI can already summarize interviews, support threads, reviews, and research notes. The harder operational problem is the **verification step between AI analysis and a decision a team is willing to defend**.
+## The verification tax
 
-Two current practitioner surveys support that direction without proving product-market fit:
+AI makes creation dramatically cheaper. Verification does not become free at the same rate.
 
-- Maze's 2026 research report says 69% of respondents use AI in at least some research and 66% report increased research demand.
-- Condens' 2026 survey of 332 practitioners reports that 71% say AI makes analysis significantly faster, while 71% also say validating AI output still takes significant time; 61% review every AI output thoroughly.
+Google Cloud's 2026 summary of DORA's AI-assisted software-development research uses the term **verification tax** for the extra effort required to rigorously review AI-generated output as generation volume increases. The same research describes a downstream effect: when individual generation accelerates, review, testing, and approval can become the new bottlenecks.
+
+Official DORA / Google Cloud context:
+
+- https://cloud.google.com/blog/products/ai-machine-learning/how-to-measure-the-business-value-of-generative-ai
+- https://dora.dev/insights/balancing-ai-tensions/
+
+That mechanism is the broader product thesis behind this repository:
+
+> **AI output throughput can grow faster than human verification throughput. The bottleneck moves; it does not disappear.**
+
+In software development this can show up as larger or more frequent AI-assisted pull requests that still need human review. In customer research, the output is different but the operational problem can look similar: AI can generate themes and summaries quickly, while a PM, designer, or researcher still has to check source context, contradictory evidence, and whether a conclusion is strong enough to support a product decision.
+
+## Why start with product research?
+
+Product research is the first vertical being tested, not a claim that verification tax only exists here.
+
+It has a useful combination of high AI adoption, consequential human judgment, and raw evidence that can remain addressable. Current practitioner research gives us a falsifiable starting point:
+
+- Maze's 2026 research report says **69%** of respondents use AI in at least some research and **66%** report increased research demand.
+- Condens' 2026 survey of 332 practitioners reports that **71%** say AI makes analysis significantly faster, while **71%** also say validating AI output still takes significant time; **61%** review every AI output thoroughly.
+- User Interviews' 2025 survey of 485 researchers reports **80%** AI use in research while **91%** express concern about AI-output accuracy or hallucination.
 
 Sources:
 
 - https://maze.co/resources/user-research-report/
 - https://condens.io/blog/ai-in-user-research-analysis-report/
+- https://www.userinterviews.com/state-of-user-research-report
 
-These are global, vendor-published surveys. They are treated as market signals, not claims about Korean product teams. Local pain frequency and willingness to pay still require direct customer validation.
+These are global practitioner surveys, including vendor-published research. They are market signals, not proof of product-market fit and not claims about Korean product teams. Local pain frequency, workflow fit, and willingness to pay still require direct customer validation.
+
+## What the product is testing
+
+The core hypothesis is narrower than “AI research with citations.” Mature tools already provide AI analysis, source links, research repositories, and opportunity workflows.
+
+Research Evidence Map tests whether a team gets additional value from making **verification state itself** part of the product model:
+
+- AI-proposed evidence is visibly separate from human-reviewed evidence.
+- exact source fragments remain reachable from the claim they support.
+- contradictory evidence is preserved instead of averaged away.
+- an opportunity can be explicitly challenged before commitment.
+- a human decision captures what had been reviewed, what remained unresolved, and what contradictions existed at decision time.
+- later decisions supersede earlier versions instead of rewriting history.
+
+The intended wedge is therefore the **verification layer between AI analysis and product decision**, rather than another general-purpose summarizer or a claim that incumbents do not provide provenance.
+
+## Product state
+
+The repository already contains the underlying research workflow plus the newer Decision Record layer. It includes cross-workspace Research Memory, evidence/source/theme/opportunity search, recurring-vs-new signal comparison, unresolved evidence gaps, repeated-theme detection, and opportunity prioritization based on human review, source coverage, and explicit contradictions rather than fabricated AI confidence scores.
 
 ## Portfolio case study
 
