@@ -1,9 +1,24 @@
-import { AlertTriangle, LoaderCircle, Sprout } from 'lucide-react';
+import { AlertTriangle, Sprout } from 'lucide-react';
 import { useLocale } from '../i18n/LocaleContext';
 
 export function LoadingState({ label }: { label?: string }) {
   const { text } = useLocale();
-  return <div className="route-state" role="status"><LoaderCircle className="spin" /><h2>{label ?? text('Loading research field…', '리서치 필드 불러오는 중…')}</h2><p>{text('The canvas will remain available when the workspace is ready.', '워크스페이스가 준비되면 캔버스를 계속 사용할 수 있습니다.')}</p></div>;
+  return <div className="route-state route-loading" role="status" aria-live="polite">
+    <div className="loading-trace" aria-hidden="true">
+      <div className="loading-trace-line" />
+      <div className="loading-trace-node node-source"><span>01</span><b>{text('SOURCE', '원문')}</b></div>
+      <div className="loading-trace-node node-evidence"><span>02</span><b>{text('EVIDENCE', '근거')}</b></div>
+      <div className="loading-trace-node node-decision"><span>03</span><b>{text('DECISION', '결정')}</b></div>
+      <i className="loading-trace-pulse pulse-one" />
+      <i className="loading-trace-pulse pulse-two" />
+    </div>
+    <div className="loading-copy">
+      <span>{text('TRACEABLE RESEARCH WORKSPACE', '추적 가능한 리서치 워크스페이스')}</span>
+      <h2>{label ?? text('Loading research field…', '리서치 필드 불러오는 중…')}</h2>
+      <p>{text('Connecting sources, evidence, and the human decision trail.', '원문과 근거, 사람의 의사결정 경로를 연결하고 있습니다.')}</p>
+      <div className="loading-progress" aria-hidden="true"><i /></div>
+    </div>
+  </div>;
 }
 
 export function ErrorState({ title, detail, retry }: { title?: string; detail: string; retry?: () => void }) {
