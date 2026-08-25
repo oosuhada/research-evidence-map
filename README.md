@@ -6,17 +6,27 @@ Research Evidence Map is a full-stack workspace for turning customer research in
 
 ## Portfolio case study
 
-This project is **Inspectable AI Systems / 01 — Research**. The portfolio thesis is that AI-assisted software should expose the provenance, uncertainty, computation, and human judgment needed to challenge its output rather than hiding those boundaries behind fluent generation.
+Research Evidence Map is an independent product experiment around one question: **can AI-assisted research synthesis stay useful without losing the exact evidence needed to challenge it?**
 
-The first-run experience is intentionally structured as a compact case study: **Before → Problem → Insight → Architecture → Interaction → Result**. Its representative interaction is a provenance trace assembled from the latest persisted workspace: `OPPORTUNITY → REVIEWED EVIDENCE → SOURCE FRAGMENT → SOURCE`. The home trace and the workspace inspector read the same API/domain records rather than using a separate marketing-only data path.
+The first-run experience is intentionally sample-first rather than empty. A fresh deployment bootstraps three persisted synthetic studies—**Trust & approval**, **First-run comprehension**, and **Research handoff**—through the real import / analysis / review / cluster / opportunity APIs. The examples intentionally repeat one reviewed theme across separate studies so Research Memory has useful cross-workspace state on the first visit.
 
-### Killer interaction — one persisted conclusion, traced backward
+### Sample research library — useful before creating anything
 
-![Persisted opportunity at the end of the provenance chain](docs/portfolio/01-killer-opportunity.png)
+![Saved example research projects on first visit](docs/portfolio/01-sample-research-library.png)
 
-The same interactive trace can be rewound to the exact imported source and locator:
+The cross-workspace memory view immediately exposes repeated themes, new signals, unresolved gaps, and evidence-state-based opportunity priority:
 
-![Exact source at the beginning of the provenance chain](docs/portfolio/02-killer-source.png)
+![Research Memory across the saved example studies](docs/portfolio/02-research-memory.png)
+
+### Killer interaction cluster — provenance and disagreement
+
+Selecting an opportunity in the evidence map activates **Trace Field**: unrelated nodes are muted while the persisted opportunity, supporting evidence, exact fragments, source count, and contradiction count remain illuminated.
+
+![Live provenance focus inside the evidence map](docs/portfolio/03-trace-field.png)
+
+When that conclusion has counter-evidence, **Contradiction Lens** isolates only the evidence that challenges it without deleting or rewriting the supporting chain.
+
+![Counter-evidence isolated inside the same provenance graph](docs/portfolio/04-contradiction-lens.png)
 
 ### Architecture proof
 

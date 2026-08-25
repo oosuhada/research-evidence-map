@@ -12,13 +12,6 @@ const story = [
   ['RESULT', 'Research becomes cumulative organizational memory instead of a folder of one-off summaries.'],
 ];
 
-const series = [
-  ['01', 'Research', 'https://signals.oosu.dev/'],
-  ['02', 'Decisions', 'https://scenario.oosu.dev/'],
-  ['03', 'Generative UI', 'https://decision.oosu.dev/'],
-  ['04', 'Memory', 'https://memory.oosu.dev/'],
-] as const;
-
 type TraceStage = { code: string; title: string; body: string; meta: string };
 
 function fallbackStages(): TraceStage[] {
@@ -68,7 +61,7 @@ export function PortfolioNarrative({ workspaceId }: { workspaceId?: string | nul
   return (
     <section className="portfolio-narrative" aria-labelledby="portfolio-case-title">
       <div className="portfolio-thesis-row">
-        <span>INSPECTABLE AI SYSTEMS / 01</span>
+        <span>RESEARCH EVIDENCE MAP / TRUST MODEL</span>
         <p>AI may synthesize research. It should never erase the evidence needed to challenge that synthesis.</p>
       </div>
 
@@ -116,10 +109,6 @@ export function PortfolioNarrative({ workspaceId }: { workspaceId?: string | nul
           <div className="case-story">
             {story.map(([label, body], index) => <article key={label}><span>{String(index + 1).padStart(2, '0')} / {label}</span><p>{body}</p></article>)}
           </div>
-
-          <nav className="series-nav" aria-label="Inspectable AI Systems series">
-            {series.map(([index, label, href]) => <a key={index} className={index === '01' ? 'active' : ''} href={href}><span>{index}</span><b>{label}</b></a>)}
-          </nav>
         </div>
       </details>
     </section>

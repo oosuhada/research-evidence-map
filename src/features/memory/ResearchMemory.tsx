@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, BookOpenCheck, GitCompareArrows, Layers3, Search, Sparkles, TriangleAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
@@ -23,6 +24,7 @@ export function ResearchMemory() {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedThemeKey, setSelectedThemeKey] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -35,6 +37,10 @@ export function ResearchMemory() {
   }, []);
 
   const recurringThemes = useMemo(() => memory?.themes.filter((theme) => theme.status === 'recurring').slice(0, 8) ?? [], [memory]);
+  const selectedTheme = useMemo(() => recurringThemes.find((theme) => theme.key === selectedThemeKey) ?? recurringThemes[0] ?? null, [recurringThemes, selectedThemeKey]);
+  const lineageWorkspaces = useMemo(() => selectedTheme
+    ? memory?.workspaces.filter((workspace) => selectedTheme.workspace_ids.includes(workspace.id)).sort((a, b) => Date.parse(a.updated_at) - Date.parse(b.updated_at)) ?? []
+    : [], [memory?.workspaces, selectedTheme]);
 
   const search = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -61,7 +67,12 @@ export function ResearchMemory() {
     <div className="memory-grid">
       <article className="memory-panel latest-memory"><div className="memory-panel-head"><GitCompareArrows size={17} /><div><span>LATEST VS PREVIOUS</span><strong>{latest?.workspace_name ?? 'No research yet'}</strong></div></div>{latest ? <><div className="signal-split"><div><span>Recurring signals</span>{latest.recurring_signals.length ? latest.recurring_signals.map((label) => <button key={`repeat-${label}`} onClick={() => navigate(`/w/${latest.workspace_id}`)}><Layers3 size={12} />{label}</button>) : <p>No theme in the latest workspace has appeared in an earlier workspace yet.</p>}</div><div><span>New in latest research</span>{latest.new_signals.length ? latest.new_signals.map((label) => <button key={`new-${label}`} onClick={() => navigate(`/w/${latest.workspace_id}`)}><Sparkles size={12} />{label}</button>) : <p>No newly observed cluster in the latest workspace.</p>}</div></div><small>Compared with {latest.previous_workspace_count} earlier workspace{latest.previous_workspace_count === 1 ? '' : 's'}.</small></> : <p>Create and analyze a workspace to start accumulating research memory.</p>}</article>
 
-      <article className="memory-panel"><div className="memory-panel-head"><Layers3 size={17} /><div><span>REPEATED THEMES</span><strong>Cross-workspace signals</strong></div></div><div className="theme-list">{recurringThemes.length ? recurringThemes.map((theme) => <div key={theme.key}><div><strong>{theme.label}</strong><span>{theme.workspace_names.join(' · ')}</span></div><b>{theme.workspace_count} workspaces<br />{theme.evidence_count} evidence</b></div>) : <p>No repeated cluster label has been observed across separate workspaces yet.</p>}</div></article>
+      <article className="memory-panel theme-memory-panel"><div className="memory-panel-head"><Layers3 size={17} /><div><span>KILLER INTERACTION / MEMORY LINEAGE</span><strong>Watch a theme reappear across studies</strong></div></div><div className="theme-list interactive-theme-list">{recurringThemes.length ? recurringThemes.map((theme) => <button type="button" className={selectedTheme?.key === theme.key ? 'active' : ''} key={theme.key} onClick={() => setSelectedThemeKey(theme.key)}><div><strong>{theme.label}</strong><span>{theme.workspace_names.join(' · ')}</span></div><b>{theme.workspace_count} workspaces<br />{theme.evidence_count} evidence</b></button>) : <p>No repeated cluster label has been observed across separate workspaces yet.</p>}</div>
+        <AnimatePresence mode="wait">{selectedTheme ? <motion.div className="theme-lineage" key={selectedTheme.key} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+          <div className="theme-lineage-head"><span>RECURRING SIGNAL / {selectedTheme.workspace_count} WORKSPACES</span><strong>{selectedTheme.label}</strong><small>First seen {new Date(selectedTheme.first_seen).toLocaleDateString()} · latest {new Date(selectedTheme.last_seen).toLocaleDateString()}</small></div>
+          <div className="theme-lineage-track">{lineageWorkspaces.map((workspace, index) => <motion.button layout key={workspace.id} type="button" onClick={() => navigate(`/w/${workspace.id}`)}><i /><span>{String(index + 1).padStart(2, '0')}</span><strong>{workspace.name}</strong><small>{workspace.reviewed_evidence_count}/{workspace.evidence_count} evidence reviewed · {workspace.source_count} sources</small></motion.button>)}</div>
+        </motion.div> : null}</AnimatePresence>
+      </article>
 
       <article className="memory-panel backlog-panel"><div className="memory-panel-head"><TriangleAlert size={17} /><div><span>RESEARCH BACKLOG</span><strong>Unresolved questions & gaps</strong></div></div><div className="backlog-list">{memory.backlog.slice(0, 10).map((item) => <button key={item.id} onClick={() => navigate(`/w/${item.workspace_id}`)}><span>{backlogLabel[item.kind]}</span><strong>{item.label}</strong><p>{item.reason}</p><small>{item.workspace_name}</small></button>)}{memory.backlog.length === 0 ? <p>No current source coverage gaps or explicit contradictions were found.</p> : null}</div></article>
 
