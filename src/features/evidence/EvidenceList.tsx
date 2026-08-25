@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { ArrowUpRight, Check, Filter, Link2, Search, ShieldAlert } from 'lucide-react';
 import { api } from '../../api/client';
+import { useLocale } from '../../i18n/LocaleContext';
 import type { WorkspaceDetail } from '../../schemas/domain';
 import { useWorkspaceUi } from '../../state/workspace-context';
 
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function EvidenceList({ detail, onInspect, onChanged }: Props) {
+  const { text } = useLocale();
   const parentRef = useRef<HTMLDivElement | null>(null);
   const { state, dispatch } = useWorkspaceUi();
   const [query, setQuery] = useState('');
@@ -59,14 +61,14 @@ export function EvidenceList({ detail, onInspect, onChanged }: Props) {
   };
 
   return <section className="evidence-workflow" aria-labelledby="evidence-list-heading">
-    <div className="list-heading"><div><span>ACCESSIBLE CANVAS ALTERNATIVE</span><h2 id="evidence-list-heading">Evidence List</h2></div><p>{rows.length} evidence items · {state.selectedEvidenceIds.length} selected</p></div>
+    <div className="list-heading"><div><span>{text('ACCESSIBLE CANVAS ALTERNATIVE', '접근 가능한 캔버스 대안')}</span><h2 id="evidence-list-heading">{text('Evidence List', '근거 목록')}</h2></div><p>{text(`${rows.length} evidence items · ${state.selectedEvidenceIds.length} selected`, `근거 ${rows.length}개 · ${state.selectedEvidenceIds.length}개 선택`)}</p></div>
     <div className="evidence-toolbar">
-      <label><Search size={13} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search evidence, source, cluster, opportunity…" /></label>
-      <div><Filter size={13} /><button className={reviewFilter === 'all' ? 'active' : ''} onClick={() => setReviewFilter('all')}>All</button><button className={reviewFilter === 'proposed' ? 'active' : ''} onClick={() => setReviewFilter('proposed')}>Needs review</button><button className={reviewFilter === 'reviewed' ? 'active' : ''} onClick={() => setReviewFilter('reviewed')}>Reviewed</button><button className={contradictionsOnly ? 'active' : ''} onClick={() => setContradictionsOnly((current) => !current)}>Contradictions</button></div>
-      <button className="bulk-review-button" disabled={bulkBusy || !state.selectedEvidenceIds.length} onClick={() => void markSelectedReviewed()}><Check size={13} />{bulkBusy ? 'Updating…' : 'Mark selected reviewed'}</button>
+      <label><Search size={13} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={text('Search evidence, source, cluster, opportunity…', '근거, 원문, 클러스터, 기회 검색…')} /></label>
+      <div><Filter size={13} /><button className={reviewFilter === 'all' ? 'active' : ''} onClick={() => setReviewFilter('all')}>{text('All', '전체')}</button><button className={reviewFilter === 'proposed' ? 'active' : ''} onClick={() => setReviewFilter('proposed')}>{text('Needs review', '검토 필요')}</button><button className={reviewFilter === 'reviewed' ? 'active' : ''} onClick={() => setReviewFilter('reviewed')}>{text('Reviewed', '검토 완료')}</button><button className={contradictionsOnly ? 'active' : ''} onClick={() => setContradictionsOnly((current) => !current)}>{text('Contradictions', '상충 근거')}</button></div>
+      <button className="bulk-review-button" disabled={bulkBusy || !state.selectedEvidenceIds.length} onClick={() => void markSelectedReviewed()}><Check size={13} />{bulkBusy ? text('Updating…', '업데이트 중…') : text('Mark selected reviewed', '선택 항목 검토 완료')}</button>
     </div>
-    <div className="evidence-columns" aria-hidden="true"><span>Select</span><span>Evidence</span><span>Source</span><span>Cluster / state</span><span>Links</span></div>
-    <div ref={parentRef} className="evidence-virtual-list" role="list" aria-label="Extracted evidence">
+    <div className="evidence-columns" aria-hidden="true"><span>{text('Select', '선택')}</span><span>{text('Evidence', '근거')}</span><span>{text('Source', '원문')}</span><span>{text('Cluster / state', '클러스터 / 상태')}</span><span>{text('Links', '연결')}</span></div>
+    <div ref={parentRef} className="evidence-virtual-list" role="list" aria-label={text('Extracted evidence', '추출된 근거')}>
       <div style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}>
         {virtualizer.getVirtualItems().map((virtualRow) => {
           const item = rows[virtualRow.index];
@@ -82,11 +84,11 @@ export function EvidenceList({ detail, onInspect, onChanged }: Props) {
             ref={virtualizer.measureElement}
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', transform: `translateY(${virtualRow.start}px)` }}
           >
-            <label className="row-select"><input type="checkbox" aria-label={`Select evidence: ${item.title}`} checked={selected} onChange={() => dispatch({ type: 'toggle-evidence', id: item.id })} /><span>{selected ? <Check size={13} /> : null}</span></label>
+            <label className="row-select"><input type="checkbox" aria-label={text(`Select evidence: ${item.title}`, `근거 선택: ${item.title}`)} checked={selected} onChange={() => dispatch({ type: 'toggle-evidence', id: item.id })} /><span>{selected ? <Check size={13} /> : null}</span></label>
             <button className="row-main" onClick={() => onInspect(item.id)}><b>{item.title}</b><p>{item.body}</p></button>
-            <div className="row-source"><b>{source?.name ?? 'Unknown source'}</b><span>{fragment?.locator ?? 'No locator'}</span>{source?.sensitive_warning ? <em><ShieldAlert size={12} /> sensitive</em> : null}</div>
-            <div className="row-state"><b>{clusterMap.get(item.id) ?? 'Unclustered'}</b><span className={`review-chip state-${item.review_state}`}>{item.review_state}</span><small>{item.provider === 'human' ? 'Human' : `AI · ${item.model}`}</small></div>
-            <div className="row-links">{contradictionIds.has(item.id) ? <span className="contradiction-chip">contradiction</span> : null}{opportunityTitles.slice(0, 2).map((title) => <span key={title}><Link2 size={11} />{title}</span>)}<button onClick={() => onInspect(item.id)} aria-label={`Inspect ${item.title}`}><ArrowUpRight size={15} /></button></div>
+            <div className="row-source"><b>{source?.name ?? text('Unknown source', '알 수 없는 원문')}</b><span>{fragment?.locator ?? text('No locator', '위치 정보 없음')}</span>{source?.sensitive_warning ? <em><ShieldAlert size={12} /> {text('sensitive', '민감정보')}</em> : null}</div>
+            <div className="row-state"><b>{clusterMap.get(item.id) ?? text('Unclustered', '미분류')}</b><span className={`review-chip state-${item.review_state}`}>{item.review_state}</span><small>{item.provider === 'human' ? text('Human', '사람') : `AI · ${item.model}`}</small></div>
+            <div className="row-links">{contradictionIds.has(item.id) ? <span className="contradiction-chip">{text('contradiction', '상충')}</span> : null}{opportunityTitles.slice(0, 2).map((title) => <span key={title}><Link2 size={11} />{title}</span>)}<button onClick={() => onInspect(item.id)} aria-label={text(`Inspect ${item.title}`, `${item.title} 상세 보기`)}><ArrowUpRight size={15} /></button></div>
           </article>;
         })}
       </div>

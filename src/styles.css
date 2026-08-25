@@ -15,6 +15,7 @@
 
 * { box-sizing: border-box; }
 html, body, #root { min-height: 100%; margin: 0; }
+html[lang='ko'] { font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif; }
 body { min-width: 320px; overflow-x: hidden; }
 button, input, textarea, select { font: inherit; }
 button { color: inherit; }
@@ -59,6 +60,11 @@ button:focus-visible, .react-flow__node:focus-visible { outline: 2px solid #315a
 .masthead-status { justify-self: end; display: flex; align-items: center; gap: 8px; }
 .masthead-status i { width: 7px; height: 7px; border-radius: 50%; background: #b57a31; }
 .masthead-status i.done { background: var(--green); }
+.masthead-tools { justify-self: end; display: flex; align-items: center; gap: 12px; }
+.language-toggle { display: inline-flex; align-items: center; gap: 5px; padding: 4px 7px; border: 1px solid var(--line); background: rgba(255,255,255,.42); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .04em; white-space: nowrap; }
+.language-toggle button { appearance: none; border: 0; padding: 1px 2px; background: transparent; color: #777467; font: inherit; cursor: pointer; }
+.language-toggle button.active { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.language-toggle button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
 .editorial-intro {
   display: grid;
