@@ -89,7 +89,7 @@ function WorkspaceRouteInner({ mobile }: { mobile: boolean }) {
   };
 
   if (error && !detail) return <main className="garden-shell"><ErrorState detail={error} retry={() => void refresh()} /></main>;
-  if (!detail) return <main className="garden-shell"><LoadingState /></main>;
+  if (!detail) return <main className="garden-shell"><LoadingState fullScreen /></main>;
 
   const latestRun = detail.analysis_runs[0];
   const activeClusters = detail.clusters.filter((item) => item.review_state !== 'superseded');
