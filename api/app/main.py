@@ -259,6 +259,86 @@ def add_contradiction(workspace_id: str, payload: schemas.ContradictionCreate, d
     return item
 
 
+@app.post("/api/workspaces/{workspace_id}/opportunities/{opportunity_id}/decisions", response_model=schemas.DecisionOut, status_code=201)
+def record_decision(workspace_id: str, opportunity_id: str, payload: schemas.DecisionCreate, db: Session = Depends(get_db)):
+    try:
+        require_workspace(db, workspace_id)
+    except KeyError as exc:
+        raise not_found(exc)
+
+    opportunity = db.get(models.Opportunity, opportunity_id)
+    if opportunity is None or opportunity.workspace_id != workspace_id:
+        raise HTTPException(status_code=404, detail="opportunity not found")
+
+    evidence_rows = db.scalars(select(models.EvidenceItem).where(models.EvidenceItem.id.in_(opportunity.evidence_item_ids))).all()
+    evidence_by_id = {item.id: item for item in evidence_rows}
+    active_evidence = [
+        evidence_by_id[evidence_id]
+        for evidence_id in opportunity.evidence_item_ids
+        if evidence_id in evidence_by_id
+        and not evidence_by_id[evidence_id].excluded
+        and evidence_by_id[evidence_id].review_state not in {"rejected", "superseded"}
+    ]
+    if not active_evidence:
+        raise HTTPException(status_code=409, detail="Record a decision only after linking at least one active evidence item to the opportunity")
+
+    reviewed_states = {"reviewed", "accepted", "edited"}
+    reviewed_count = sum(item.review_state in reviewed_states for item in active_evidence)
+    unresolved_count = len(active_evidence) - reviewed_count
+    fragment_ids = list(dict.fromkeys(fragment_id for item in active_evidence for fragment_id in item.source_fragment_ids))
+    contradictions = db.scalars(
+        select(models.Contradiction)
+        .where(models.Contradiction.workspace_id == workspace_id, models.Contradiction.opportunity_id == opportunity_id)
+        .order_by(models.Contradiction.created_at)
+    ).all()
+    challenges = db.scalars(
+        select(models.ChallengeRun)
+        .where(models.ChallengeRun.workspace_id == workspace_id, models.ChallengeRun.opportunity_id == opportunity_id)
+        .order_by(models.ChallengeRun.created_at)
+    ).all()
+    previous = db.scalar(
+        select(models.DecisionRecord)
+        .where(models.DecisionRecord.workspace_id == workspace_id, models.DecisionRecord.opportunity_id == opportunity_id)
+        .order_by(models.DecisionRecord.version.desc())
+        .limit(1)
+    )
+
+    item = models.DecisionRecord(
+        workspace_id=workspace_id,
+        opportunity_id=opportunity_id,
+        outcome=payload.outcome,
+        rationale=payload.rationale,
+        next_step=payload.next_step,
+        evidence_item_ids=[evidence.id for evidence in active_evidence],
+        source_fragment_ids=fragment_ids,
+        contradiction_ids=[contradiction.id for contradiction in contradictions],
+        challenge_run_ids=[challenge.id for challenge in challenges],
+        reviewed_evidence_count=reviewed_count,
+        unresolved_evidence_count=unresolved_count,
+        version=(previous.version + 1) if previous else 1,
+        supersedes_decision_id=previous.id if previous else None,
+    )
+    db.add(item)
+    db.flush()
+    audit_payload = {
+        "opportunity_id": item.opportunity_id,
+        "outcome": item.outcome,
+        "rationale": item.rationale,
+        "next_step": item.next_step,
+        "evidence_item_ids": item.evidence_item_ids,
+        "source_fragment_ids": item.source_fragment_ids,
+        "contradiction_ids": item.contradiction_ids,
+        "challenge_run_ids": item.challenge_run_ids,
+        "reviewed_evidence_count": item.reviewed_evidence_count,
+        "unresolved_evidence_count": item.unresolved_evidence_count,
+        "version": item.version,
+        "supersedes_decision_id": item.supersedes_decision_id,
+    }
+    record_edit(db, workspace_id, "decision", item.id, "create", {}, audit_payload)
+    db.commit()
+    return item
+
+
 @app.post("/api/workspaces/{workspace_id}/history/undo", response_model=schemas.HumanEditOut)
 def undo(workspace_id: str, db: Session = Depends(get_db)):
     try:
@@ -342,7 +422,7 @@ def export_report(workspace_id: str, db: Session = Depends(get_db)):
     fragment_map = {item.id: item for item in detail["fragments"]}
     source_map = {item.id: item for item in detail["sources"]}
     workspace = detail["workspace"]
-    lines = [f"# {workspace.name} — Opportunity Brief", "", f"> Signal Garden export · {datetime.now(timezone.utc).isoformat()}", "", "## Opportunities", ""]
+    lines = [f"# {workspace.name} — Evidence & Decision Brief", "", f"> Signal Garden export · {datetime.now(timezone.utc).isoformat()}", "", "## Opportunities", ""]
     for opportunity in detail["opportunities"]:
         lines += [f"### {opportunity.title}", "", opportunity.body, "", "Evidence:"]
         for evidence_id in opportunity.evidence_item_ids:
@@ -357,6 +437,20 @@ def export_report(workspace_id: str, db: Session = Depends(get_db)):
                     locator_bits.append(f"{source.name} · {fragment.locator}")
             lines.append(f"- **{evidence.title}** — {evidence.body}  \n  Source: {'; '.join(locator_bits) or 'unavailable'}")
         lines.append("")
+    lines += ["## Human Decisions", ""]
+    opportunity_map = {item.id: item for item in detail["opportunities"]}
+    for decision in detail["decisions"]:
+        opportunity = opportunity_map.get(decision.opportunity_id)
+        lines += [
+            f"### {opportunity.title if opportunity else 'Archived opportunity'} · v{decision.version}",
+            "",
+            f"- Outcome: **{decision.outcome}**",
+            f"- Rationale: {decision.rationale}",
+            f"- Next step: {decision.next_step or 'Not recorded'}",
+            f"- Evidence snapshot: {len(decision.evidence_item_ids)} active · {decision.reviewed_evidence_count} human-reviewed · {decision.unresolved_evidence_count} unresolved",
+            f"- Verification snapshot: {len(decision.challenge_run_ids)} challenge run(s) · {len(decision.contradiction_ids)} contradiction(s) · {len(decision.source_fragment_ids)} source fragment(s)",
+            "",
+        ]
     lines += ["## Reviewed Evidence", ""]
     for evidence in detail["evidence"]:
         lines.append(f"- [{evidence.review_state}] **{evidence.title}** — {evidence.body}")

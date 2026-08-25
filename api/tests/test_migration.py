@@ -12,4 +12,4 @@ def test_alembic_upgrade_head_on_fresh_database(tmp_path: Path):
     assert result.returncode == 0, result.stderr
     current = subprocess.run([".venv/bin/alembic", "current"], cwd=Path(__file__).parents[1], env=env, capture_output=True, text=True)
     assert current.returncode == 0
-    assert "20260824_0001" in current.stdout
+    assert "20260825_0002" in current.stdout

@@ -193,6 +193,25 @@ class ChallengeRun(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 
+class DecisionRecord(Base):
+    __tablename__ = "decision_records"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)
+    workspace_id: Mapped[str] = mapped_column(ForeignKey("workspaces.id", ondelete="CASCADE"), index=True)
+    opportunity_id: Mapped[str] = mapped_column(ForeignKey("opportunities.id", ondelete="CASCADE"), index=True)
+    outcome: Mapped[str] = mapped_column(String(32))
+    rationale: Mapped[str] = mapped_column(Text)
+    next_step: Mapped[str] = mapped_column(Text, default="")
+    evidence_item_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    source_fragment_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    contradiction_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    challenge_run_ids: Mapped[list[str]] = mapped_column(JSON, default=list)
+    reviewed_evidence_count: Mapped[int] = mapped_column(Integer, default=0)
+    unresolved_evidence_count: Mapped[int] = mapped_column(Integer, default=0)
+    version: Mapped[int] = mapped_column(Integer, default=1)
+    supersedes_decision_id: Mapped[str | None] = mapped_column(ForeignKey("decision_records.id", ondelete="SET NULL"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
+
+
 class HumanEdit(Base):
     __tablename__ = "human_edits"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=uid)

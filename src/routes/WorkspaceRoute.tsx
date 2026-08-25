@@ -6,6 +6,7 @@ import { GardenCanvas } from '../canvas/GardenCanvas';
 import { EmptyState, ErrorState, LoadingState } from '../components/RouteState';
 import { WorkspaceGuide } from '../components/WorkspaceGuide';
 import { ClusterControls } from '../features/clusters/ClusterControls';
+import { DecisionPanel } from '../features/decisions/DecisionPanel';
 import { EvidenceInspector } from '../features/evidence/EvidenceInspector';
 import { EvidenceList } from '../features/evidence/EvidenceList';
 import { ExportPanel } from '../features/exports/ExportPanel';
@@ -100,23 +101,24 @@ function WorkspaceRouteInner({ mobile }: { mobile: boolean }) {
 
     <ResearchHealth detail={detail} />
 
-    <nav className="workflow-rail" aria-label="Discovery workflow"><a href="#sources">01 Workspace</a><a href="#sources">02 Import</a><a href="#analysis">03 Analyze</a><a href="#evidence">04 Review & cluster</a><a href="#opportunities">05 Opportunity</a><a href="#opportunities">06 Challenge</a><a href="#brief">07 Brief</a><a href="#exports">08 Export</a></nav>
+    <nav className="workflow-rail" aria-label="Discovery workflow"><a href="#sources">01 Workspace</a><a href="#sources">02 Import</a><a href="#analysis">03 Analyze</a><a href="#evidence">04 Review & cluster</a><a href="#opportunities">05 Opportunity</a><a href="#opportunities">06 Challenge</a><a href="#decisions">07 Decision</a><a href="#brief">08 Brief</a><a href="#exports">09 Export</a></nav>
 
     <section id="sources"><ImportPanel workspaceId={workspaceId} onImported={setDetail} />{detail.sources.length ? <SourceRegister detail={detail} onDelete={(sourceId, sourceName) => { if (window.confirm(`Delete ${sourceName}? This also removes its source fragments.`)) void api.deleteSource(workspaceId, sourceId).then(refresh); }} /> : null}</section>
 
     <section id="analysis" className="analysis-console"><div><span>STEP 03 / ANALYSIS RUN</span><h2>Extract proposed evidence</h2><p>AI output is a proposal, never an accepted fact. It receives an extraction status and must enter the human review workflow.</p></div><div className="analysis-actions"><button className="ink-button compact" onClick={() => void analyze()} disabled={!detail.sources.length || busy === 'analysis'}><Play size={14} />{busy === 'analysis' ? 'Analyzing…' : `Analyze ${detail.sources.length} source${detail.sources.length === 1 ? '' : 's'}`}</button>{latestRun ? <small>{latestRun.status.toUpperCase()} · {latestRun.provider}/{latestRun.model}<br />{latestRun.prompt_version} · {latestRun.token_input + latestRun.token_output} tokens · ${latestRun.cost_usd.toFixed(4)}{latestRun.failure_reason ? ` · ${latestRun.failure_reason}` : ''}</small> : <small>No analysis run yet.</small>}</div></section>
 
     <section id="evidence" className="evidence-stage"><div className="map-index"><div><span>STEP 04 / EVIDENCE FIELD</span><b>{detail.evidence.filter((item) => !item.excluded).length} active evidence · {activeClusters.length} clusters</b></div><div className="view-switch" role="group" aria-label="Evidence view"><button className={state.view === 'list' ? 'active' : ''} onClick={() => setView('list')}><List size={14} />Evidence List</button><button className={state.view === 'map' ? 'active' : ''} onClick={() => setView('map')}><Map size={14} />{mobile ? 'Focused Map' : 'Field Map'}</button></div></div>
-      {!detail.evidence.length ? <EmptyState title="No extracted evidence yet." detail={detail.sources.length ? 'Run analysis after confirming the imported source scope.' : 'Import source documents before analysis.'} /> : state.view === 'list' ? <EvidenceList workspaceId={workspaceId} detail={detail} onInspect={inspectEvidence} onChanged={refresh} /> : <div className="map-frame production-map">{mobile ? <div className="focus-picker"><label>Focused cluster<select value={focusedClusterId ?? ''} onChange={(event) => updateSearch({ cluster: event.target.value || null })}>{activeClusters.map((cluster) => <option key={cluster.id} value={cluster.id}>{cluster.label}</option>)}</select></label></div> : null}<GardenCanvas detail={detail} selectedEvidenceId={selectedEvidenceId} selectedOpportunityId={selectedOpportunityId} focusClusterId={focusedClusterId} focused={mobile} lowPower={lowPower} onEvidenceSelect={inspectEvidence} onOpportunitySelect={inspectOpportunity} /></div>}
+      {!detail.evidence.length ? <EmptyState title="No extracted evidence yet." detail={detail.sources.length ? 'Run analysis after confirming the imported source scope.' : 'Import source documents before analysis.'} /> : state.view === 'list' ? <EvidenceList detail={detail} onInspect={inspectEvidence} onChanged={refresh} /> : <div className="map-frame production-map">{mobile ? <div className="focus-picker"><label>Focused cluster<select value={focusedClusterId ?? ''} onChange={(event) => updateSearch({ cluster: event.target.value || null })}>{activeClusters.map((cluster) => <option key={cluster.id} value={cluster.id}>{cluster.label}</option>)}</select></label></div> : null}<GardenCanvas detail={detail} selectedEvidenceId={selectedEvidenceId} selectedOpportunityId={selectedOpportunityId} focusClusterId={focusedClusterId} focused={mobile} lowPower={lowPower} onEvidenceSelect={inspectEvidence} onOpportunitySelect={inspectOpportunity} /></div>}
     </section>
 
     {detail.evidence.length ? <ClusterControls workspaceId={workspaceId} detail={detail} onChanged={refresh} /> : null}
-    {detail.evidence.length ? <ResearchBrief detail={detail} /> : null}
     <div id="opportunities"><OpportunityPanel workspaceId={workspaceId} detail={detail} selectedOpportunityId={selectedOpportunityId} onOpportunitySelect={inspectOpportunity} onChanged={refresh} /></div>
+    <div id="decisions"><DecisionPanel workspaceId={workspaceId} detail={detail} selectedOpportunityId={selectedOpportunityId} onChanged={refresh} /></div>
+    <div id="brief">{detail.evidence.length ? <ResearchBrief detail={detail} /> : null}</div>
     <div id="exports"><ExportPanel workspaceId={workspaceId} detail={detail} onChanged={refresh} /></div>
 
     {selectedEvidenceId ? <EvidenceInspector detail={detail} evidenceId={selectedEvidenceId} onClose={() => updateSearch({ evidence: null })} onChanged={refresh} /> : null}
     {guideOpen ? <WorkspaceGuide step={guideStep} onStep={setGuideStep} onClose={() => setGuideOpen(false)} /> : null}
-    <footer className="garden-footer"><span>METHOD / SOURCE → FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY</span><span><History size={12} /> HUMAN EDITS ARE AUDITED + REVERSIBLE</span></footer>
+    <footer className="garden-footer"><span>METHOD / SOURCE → FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY → HUMAN DECISION</span><span><History size={12} /> HUMAN EDITS ARE AUDITED + REVERSIBLE</span></footer>
   </main>;
 }

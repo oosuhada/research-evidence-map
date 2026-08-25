@@ -2,7 +2,25 @@
 
 The product now includes a deterministic **Research Operations / Research Memory** layer across saved workspaces. It provides cross-workspace evidence/source/theme/opportunity search, recurring-vs-new signal comparison for the latest research, a derived unresolved research/evidence-gap backlog, repeated-theme detection, and opportunity prioritization based on human review, source coverage, and explicit contradictions rather than fabricated AI confidence scores.
 
-Research Evidence Map is a full-stack workspace for turning customer research into reviewable product evidence without losing the source trail.
+Research Evidence Map is a full-stack **AI research verification and product-decision workspace**. It is designed for product teams that can already generate summaries quickly, but still need to verify what the AI concluded, inspect conflicting evidence, and preserve the evidence that existed when a product decision was made.
+
+## Product thesis
+
+The bottleneck is moving.
+
+AI can already summarize interviews, support threads, reviews, and research notes. The harder operational problem is the **verification step between AI analysis and a decision a team is willing to defend**.
+
+Two current practitioner surveys support that direction without proving product-market fit:
+
+- Maze's 2026 research report says 69% of respondents use AI in at least some research and 66% report increased research demand.
+- Condens' 2026 survey of 332 practitioners reports that 71% say AI makes analysis significantly faster, while 71% also say validating AI output still takes significant time; 61% review every AI output thoroughly.
+
+Sources:
+
+- https://maze.co/resources/user-research-report/
+- https://condens.io/blog/ai-in-user-research-analysis-report/
+
+These are global, vendor-published surveys. They are treated as market signals, not claims about Korean product teams. Local pain frequency and willingness to pay still require direct customer validation.
 
 ## Portfolio case study
 
@@ -23,15 +41,22 @@ The same interactive trace can be rewound to the exact imported source and locat
 ![Research trust and data architecture](docs/portfolio/03-architecture.png)
 
 **Common approach:** documents → generated summary → recommendation.  
-**This system:** source → addressable fragment → AI proposal → human review → cluster/opportunity → cross-workspace research memory.
+**This system:** source → addressable fragment → AI proposal → human review → contradiction/challenge → opportunity → human decision snapshot.
 
 The project began as a visual experiment called **Signal Garden**. The current implementation keeps that cartographic visual language only where it helps people scan clusters; the product itself is organized around a concrete research workflow rather than the metaphor.
 
 ## Problem
 
-Customer interviews, app reviews, support threads, and meeting notes usually end up scattered across documents and dashboards. Synthesis is useful, but it becomes hard to trust once the connection between a conclusion and the original source is lost.
+Customer interviews, app reviews, support threads, and meeting notes can now be synthesized quickly with general-purpose or research-specific AI. But a product team still has to answer a different set of questions before acting:
 
-This project tests a narrower idea: every AI-assisted synthesis should remain inspectable, reversible, and traceable to the exact source fragment that produced it.
+- Which exact source fragments support this conclusion?
+- Which evidence has actually been reviewed by a human?
+- What contradicts the conclusion?
+- Did the team challenge the opportunity before committing to it?
+- What evidence existed at the moment the decision was made?
+- If the decision changed later, why did it change?
+
+This project tests a narrower idea: **AI-assisted research should not stop at a cited answer. Verification state and the resulting human decision should be first-class, traceable records.**
 
 ## Working flow
 
@@ -44,14 +69,16 @@ Create research workspace
 → merge / split clusters
 → derive opportunities
 → challenge an opportunity
-→ inspect provenance
+→ record a human decision
+→ revise the decision without overwriting history
+→ inspect the decision-time evidence snapshot
 → export or share read-only
 ```
 
 ## What is implemented
 
 - React + TypeScript research workspace with list and spatial evidence views.
-- FastAPI API with persisted workspaces, sources, fragments, evidence, clusters, opportunities, challenges, and edit history.
+- FastAPI API with persisted workspaces, sources, fragments, evidence, clusters, opportunities, challenges, **human decisions**, and edit history.
 - PostgreSQL-ready persistence with Alembic migrations and a local database mode.
 - Text/file source intake with explicit preview before analysis.
 - Human review states for AI-proposed evidence.
@@ -63,6 +90,8 @@ Create research workspace
 - Exportable evidence map and source register.
 - Searchable/filterable evidence review queue with bulk human-review actions.
 - Deterministic Research Brief export with cluster/source coverage, opportunity hypotheses, and contradiction summary.
+- Versioned Decision Records with outcomes (`proceed`, `experiment`, `hold`, `reject`), rationale, next step, and immutable decision-time snapshots of reviewed/unresolved evidence, source fragments, contradictions, and challenge runs.
+- Decision revision through a superseding version chain instead of silently overwriting the prior judgment.
 - Reduced-motion, lower-power, keyboard, mobile, and accessibility handling.
 - First-run guided demo that creates synthetic source documents through the real API, runs analysis, records reviewed evidence, creates an opportunity and contradiction, and walks through the resulting workspace.
 
@@ -81,7 +110,7 @@ The application accepts real research material. Any empty-state or development f
 The core chain is explicit throughout the codebase:
 
 ```text
-SOURCE DOCUMENT → SOURCE FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY
+SOURCE DOCUMENT → SOURCE FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY → HUMAN DECISION
 ```
 
 ## Architecture
@@ -90,7 +119,7 @@ SOURCE DOCUMENT → SOURCE FRAGMENT → EVIDENCE → CLUSTER → OPPORTUNITY
 src/
   api/            browser API client
   canvas/         evidence map visualization
-  features/       import, evidence, opportunity, export workflows
+  features/       import, evidence, opportunity, decision, export workflows
   routes/         home, workspace, read-only share
   schemas/        runtime domain validation
   state/          workspace state and history
@@ -107,6 +136,22 @@ api/
 **Why preserve deterministic mode?** A research workflow should remain inspectable without requiring an external model or hiding behavior behind generated text. Provider-backed analysis is an adapter, not the domain model.
 
 **Why explicit review state?** Extracted evidence can be wrong. Proposed evidence therefore moves through human review rather than being silently promoted to fact.
+
+**Why a separate Decision Record?** An opportunity is still a hypothesis. A decision is a human commitment made at a specific point in time. The application stores the evidence and unresolved context that existed at that moment so later revisions can be explained rather than retroactively rewritten.
+
+## Demo narrative
+
+The shortest product story is not “upload documents and get AI insights.” It is:
+
+1. Import three pieces of customer evidence.
+2. Let the deterministic or provider adapter propose evidence.
+3. Accept one item, edit another, and leave one unresolved.
+4. Create an opportunity and surface a contradiction.
+5. Challenge the opportunity and trace the response to source fragments.
+6. Record `experiment`, `hold`, `proceed`, or `reject` with a human rationale.
+7. Revise the decision and show that v1 remains intact while v2 supersedes it.
+
+See [`docs/decision-demo.md`](docs/decision-demo.md) for the application-oriented demo script and what each step proves.
 
 ## Local development
 
