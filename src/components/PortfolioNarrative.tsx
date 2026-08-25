@@ -4,13 +4,6 @@ import { api } from '../api/client';
 import { useLocale } from '../i18n/LocaleContext';
 import type { WorkspaceDetail } from '../schemas/domain';
 
-const series = [
-  ['01', 'Research', 'https://signals.oosu.dev/'],
-  ['02', 'Decisions', 'https://scenario.oosu.dev/'],
-  ['03', 'Generative UI', 'https://decision.oosu.dev/'],
-  ['04', 'Memory', 'https://memory.oosu.dev/'],
-] as const;
-
 type TraceStage = { code: string; title: string; body: string; meta: string };
 
 function fallbackStages(ko: boolean): TraceStage[] {
@@ -71,7 +64,7 @@ export function PortfolioNarrative({ workspaceId }: { workspaceId?: string | nul
   return (
     <section className="portfolio-narrative" aria-labelledby="portfolio-case-title">
       <div className="portfolio-thesis-row">
-        <span>INSPECTABLE AI SYSTEMS / 01</span>
+        <span>{text('RESEARCH EVIDENCE MAP / TRUST MODEL', 'RESEARCH EVIDENCE MAP / 신뢰 모델')}</span>
         <p>{text('AI may synthesize research. It should never erase the evidence needed to challenge that synthesis.', 'AI가 리서치를 종합할 수는 있어도, 그 종합을 반박하고 검증하는 데 필요한 근거까지 지워서는 안 됩니다.')}</p>
       </div>
 
@@ -119,10 +112,6 @@ export function PortfolioNarrative({ workspaceId }: { workspaceId?: string | nul
           <div className="case-story">
             {story.map(([label, body], index) => <article key={label}><span>{String(index + 1).padStart(2, '0')} / {label}</span><p>{body}</p></article>)}
           </div>
-
-          <nav className="series-nav" aria-label={text('Inspectable AI Systems series', 'Inspectable AI Systems 시리즈')}>
-            {series.map(([index, label, href]) => <a key={index} className={index === '01' ? 'active' : ''} href={href}><span>{index}</span><b>{label}</b></a>)}
-          </nav>
         </div>
       </details>
     </section>

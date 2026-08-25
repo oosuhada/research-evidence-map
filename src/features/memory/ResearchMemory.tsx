@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, BookOpenCheck, GitCompareArrows, Layers3, Search, Sparkles, TriangleAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../api/client';
@@ -12,6 +13,7 @@ export function ResearchMemory() {
   const [query, setQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedThemeKey, setSelectedThemeKey] = useState<string | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -24,6 +26,10 @@ export function ResearchMemory() {
   }, [text]);
 
   const recurringThemes = useMemo(() => memory?.themes.filter((theme) => theme.status === 'recurring').slice(0, 8) ?? [], [memory]);
+  const selectedTheme = useMemo(() => recurringThemes.find((theme) => theme.key === selectedThemeKey) ?? recurringThemes[0] ?? null, [recurringThemes, selectedThemeKey]);
+  const lineageWorkspaces = useMemo(() => selectedTheme
+    ? memory?.workspaces.filter((workspace) => selectedTheme.workspace_ids.includes(workspace.id)).sort((a, b) => Date.parse(a.updated_at) - Date.parse(b.updated_at)) ?? []
+    : [], [memory?.workspaces, selectedTheme]);
 
   const search = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -61,7 +67,12 @@ export function ResearchMemory() {
     <div className="memory-grid">
       <article className="memory-panel latest-memory"><div className="memory-panel-head"><GitCompareArrows size={17} /><div><span>{text('LATEST VS PREVIOUS', '최신 VS 이전')}</span><strong>{latest?.workspace_name ?? text('No research yet', '아직 리서치 없음')}</strong></div></div>{latest ? <><div className="signal-split"><div><span>{text('Recurring signals', '반복 신호')}</span>{latest.recurring_signals.length ? latest.recurring_signals.map((label) => <button key={`repeat-${label}`} onClick={() => navigate(`/w/${latest.workspace_id}`)}><Layers3 size={12} />{label}</button>) : <p>{text('No theme in the latest workspace has appeared in an earlier workspace yet.', '최신 워크스페이스의 테마 중 이전 워크스페이스에도 나타난 테마가 아직 없습니다.')}</p>}</div><div><span>{text('New in latest research', '최신 리서치의 새 신호')}</span>{latest.new_signals.length ? latest.new_signals.map((label) => <button key={`new-${label}`} onClick={() => navigate(`/w/${latest.workspace_id}`)}><Sparkles size={12} />{label}</button>) : <p>{text('No newly observed cluster in the latest workspace.', '최신 워크스페이스에서 새로 관찰된 클러스터가 없습니다.')}</p>}</div></div><small>{text(`Compared with ${latest.previous_workspace_count} earlier workspace${latest.previous_workspace_count === 1 ? '' : 's'}.`, `이전 워크스페이스 ${latest.previous_workspace_count}개와 비교했습니다.`)}</small></> : <p>{text('Create and analyze a workspace to start accumulating research memory.', '워크스페이스를 만들고 분석하면 Research Memory가 쌓이기 시작합니다.')}</p>}</article>
 
-      <article className="memory-panel"><div className="memory-panel-head"><Layers3 size={17} /><div><span>{text('REPEATED THEMES', '반복 테마')}</span><strong>{text('Cross-workspace signals', '워크스페이스 간 신호')}</strong></div></div><div className="theme-list">{recurringThemes.length ? recurringThemes.map((theme) => <div key={theme.key}><div><strong>{theme.label}</strong><span>{theme.workspace_names.join(' · ')}</span></div><b>{text(`${theme.workspace_count} workspaces`, `워크스페이스 ${theme.workspace_count}개`)}<br />{text(`${theme.evidence_count} evidence`, `근거 ${theme.evidence_count}개`)}</b></div>) : <p>{text('No repeated cluster label has been observed across separate workspaces yet.', '서로 다른 워크스페이스에서 반복된 클러스터 이름이 아직 관찰되지 않았습니다.')}</p>}</div></article>
+      <article className="memory-panel theme-memory-panel"><div className="memory-panel-head"><Layers3 size={17} /><div><span>{text('KILLER INTERACTION / MEMORY LINEAGE', '핵심 상호작용 / MEMORY 계보')}</span><strong>{text('Watch a theme reappear across studies', '여러 리서치에서 같은 테마가 다시 나타나는 과정을 확인')}</strong></div></div><div className="theme-list interactive-theme-list">{recurringThemes.length ? recurringThemes.map((theme) => <button type="button" className={selectedTheme?.key === theme.key ? 'active' : ''} key={theme.key} onClick={() => setSelectedThemeKey(theme.key)}><div><strong>{theme.label}</strong><span>{theme.workspace_names.join(' · ')}</span></div><b>{text(`${theme.workspace_count} workspaces`, `워크스페이스 ${theme.workspace_count}개`)}<br />{text(`${theme.evidence_count} evidence`, `근거 ${theme.evidence_count}개`)}</b></button>) : <p>{text('No repeated cluster label has been observed across separate workspaces yet.', '서로 다른 워크스페이스에서 반복된 클러스터 이름이 아직 관찰되지 않았습니다.')}</p>}</div>
+        <AnimatePresence mode="wait">{selectedTheme ? <motion.div className="theme-lineage" key={selectedTheme.key} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
+          <div className="theme-lineage-head"><span>{text(`RECURRING SIGNAL / ${selectedTheme.workspace_count} WORKSPACES`, `반복 신호 / 워크스페이스 ${selectedTheme.workspace_count}개`)}</span><strong>{selectedTheme.label}</strong><small>{text(`First seen ${new Date(selectedTheme.first_seen).toLocaleDateString()} · latest ${new Date(selectedTheme.last_seen).toLocaleDateString()}`, `최초 ${new Date(selectedTheme.first_seen).toLocaleDateString('ko-KR')} · 최신 ${new Date(selectedTheme.last_seen).toLocaleDateString('ko-KR')}`)}</small></div>
+          <div className="theme-lineage-track">{lineageWorkspaces.map((workspace, index) => <motion.button layout key={workspace.id} type="button" onClick={() => navigate(`/w/${workspace.id}`)}><i /><span>{String(index + 1).padStart(2, '0')}</span><strong>{workspace.name}</strong><small>{text(`${workspace.reviewed_evidence_count}/${workspace.evidence_count} evidence reviewed · ${workspace.source_count} sources`, `근거 ${workspace.reviewed_evidence_count}/${workspace.evidence_count} 검토 완료 · 원문 ${workspace.source_count}개`)}</small></motion.button>)}</div>
+        </motion.div> : null}</AnimatePresence>
+      </article>
 
       <article className="memory-panel backlog-panel"><div className="memory-panel-head"><TriangleAlert size={17} /><div><span>{text('RESEARCH BACKLOG', '리서치 백로그')}</span><strong>{text('Unresolved questions & gaps', '미해결 질문 & 공백')}</strong></div></div><div className="backlog-list">{memory.backlog.slice(0, 10).map((item) => <button key={item.id} onClick={() => navigate(`/w/${item.workspace_id}`)}><span>{backlogLabel[item.kind]}</span><strong>{item.label}</strong><p>{item.reason}</p><small>{item.workspace_name}</small></button>)}{memory.backlog.length === 0 ? <p>{text('No current source coverage gaps or explicit contradictions were found.', '현재 원문 커버리지 공백이나 명시적인 상충 근거가 발견되지 않았습니다.')}</p> : null}</div></article>
 

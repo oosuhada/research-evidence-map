@@ -187,7 +187,37 @@ See [`docs/decision-demo.md`](docs/decision-demo.md) for the decision-centered d
 
 ### 저장된 opportunity → 정확한 원문
 
-![Persisted opportunity at the end of the provenance chain](docs/portfolio/01-killer-opportunity.png)
+The first-run experience is intentionally **sample-first rather than empty**. A fresh deployment bootstraps three persisted synthetic studies—**Trust & approval**, **First-run comprehension**, and **Research handoff**—through the real product APIs so visitors can inspect a meaningful verification workflow before creating anything.
+
+첫 방문 화면은 빈 화면보다 **sample-first** 경험을 우선합니다. 새 배포에서는 **Trust & approval**, **First-run comprehension**, **Research handoff**라는 세 개의 가상 리서치를 실제 제품 API를 통해 저장해, 사용자가 직접 자료를 만들기 전에도 검증 workflow를 살펴볼 수 있습니다.
+
+### Sample research library / 예시 리서치 라이브러리
+
+![Saved example research projects on first visit](docs/portfolio/01-sample-research-library.png)
+
+The cross-workspace memory view immediately exposes repeated themes, new signals, unresolved gaps, and evidence-state-based opportunity priority:
+
+워크스페이스 전체 Memory 화면에서는 반복 테마, 새 신호, 미해결 gap과 evidence-state 기반 opportunity 우선순위를 바로 확인할 수 있습니다.
+
+![Research Memory across the saved example studies](docs/portfolio/02-research-memory.png)
+
+### Killer interaction cluster — provenance and disagreement / 핵심 상호작용 — 출처와 반대 근거
+
+Selecting an opportunity in the evidence map activates **Trace Field**: unrelated nodes are muted while the persisted opportunity, supporting evidence, exact fragments, source count, and contradiction count remain illuminated.
+
+Evidence map에서 opportunity를 선택하면 **Trace Field**가 활성화됩니다. 관련 없는 노드는 흐려지고, 저장된 opportunity와 이를 지지하는 evidence, 정확한 fragment, source 수, contradiction 수가 강조됩니다.
+
+![Live provenance focus inside the evidence map](docs/portfolio/03-trace-field.png)
+
+When that conclusion has counter-evidence, **Contradiction Lens** isolates only the evidence that challenges it without deleting or rewriting the supporting chain.
+
+반대 근거가 있다면 **Contradiction Lens**가 지지 근거를 삭제하거나 다시 쓰지 않은 채 해당 결론을 반박하는 evidence만 분리해 보여줍니다.
+
+![Counter-evidence isolated inside the same provenance graph](docs/portfolio/04-contradiction-lens.png)
+
+The exact source inspector remains available from every evidence item.
+
+모든 evidence 항목에서는 정확한 원문 inspector로 다시 이동할 수 있습니다.
 
 ![Exact source at the beginning of the provenance chain](docs/portfolio/02-killer-source.png)
 
