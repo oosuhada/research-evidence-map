@@ -5,6 +5,7 @@ import {
   humanEditSchema,
   importPreviewSchema,
   opportunitySchema,
+  researchMemorySchema,
   shareSchema,
   workspaceDetailSchema,
   workspaceSummarySchema,
@@ -53,6 +54,7 @@ async function noContent(path: string, init?: RequestInit) {
 
 export const api = {
   listWorkspaces: (signal?: AbortSignal) => request('/workspaces', z.array(workspaceSummarySchema), { signal }),
+  getResearchMemory: (query = '', signal?: AbortSignal) => request(`/research-memory${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`, researchMemorySchema, { signal }),
   createWorkspace: (name: string, description: string) => request('/workspaces', workspaceSummarySchema, {
     method: 'POST', body: JSON.stringify({ name, description }),
   }),
