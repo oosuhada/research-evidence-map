@@ -244,8 +244,11 @@ label > input, label > textarea, label > select { display: block; margin-top: 6p
 
 .home-shell { min-height: 100vh; }
 .home-hero { padding: clamp(44px, 7vw, 92px) 5vw clamp(38px, 6vw, 74px); max-width: 1280px; margin: 0 auto; }
-.home-hero h1 { margin: 10px 0 18px; max-width: 1120px; font: 500 clamp(44px, 7vw, 92px)/.91 'Newsreader', serif; letter-spacing: -.05em; }
+.home-hero > .portfolio-hero-thesis { display: flex; width: fit-content; margin-bottom: 22px; }
+.home-hero > .kicker { display: block; }
+.home-hero h1 { margin: 12px 0 18px; max-width: 1120px; font: 500 clamp(44px, 7vw, 92px)/.91 'Newsreader', serif; letter-spacing: -.05em; word-break: keep-all; }
 .home-hero h1 em { color: var(--green); font-weight: 400; }
+.hero-copy-chunk { display: inline-block; white-space: nowrap; }
 .home-hero > p { max-width: 770px; font: 16px/1.65 'Newsreader', serif; color: #5b5d54; }
 .home-grid { display: grid; grid-template-columns: minmax(340px, .8fr) minmax(420px, 1.2fr); gap: 22px; max-width: 1220px; margin: 0 auto 50px; }
 .create-workspace, .workspace-index { border: 1px solid #aaa392; background: var(--paper); padding: 24px; }
