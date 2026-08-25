@@ -4,6 +4,17 @@ The product now includes a deterministic **Research Operations / Research Memory
 
 Research Evidence Map is a full-stack workspace for turning customer research into reviewable product evidence without losing the source trail.
 
+## Portfolio case study
+
+This project is **Inspectable AI Systems / 01 — Research**. The portfolio thesis is that AI-assisted software should expose the provenance, uncertainty, computation, and human judgment needed to challenge its output rather than hiding those boundaries behind fluent generation.
+
+The first-run experience is intentionally structured as a compact case study: **Before → Problem → Insight → Architecture → Interaction → Result**. Its representative interaction is a provenance trace that walks one conclusion backward through `OPPORTUNITY → REVIEWED EVIDENCE → SOURCE FRAGMENT → SOURCE`, making the trust model visible before a reviewer enters the full workspace.
+
+![Research Evidence Map portfolio overview](docs/portfolio-overview.png)
+
+**Common approach:** documents → generated summary → recommendation.  
+**This system:** source → addressable fragment → AI proposal → human review → cluster/opportunity → cross-workspace research memory.
+
 The project began as a visual experiment called **Signal Garden**. The current implementation keeps that cartographic visual language only where it helps people scan clusters; the product itself is organized around a concrete research workflow rather than the metaphor.
 
 ## Problem
