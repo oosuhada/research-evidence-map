@@ -1,0 +1,145 @@
+{
+  "baseline": {
+    "accuracy": 0.46875,
+    "confusion": {
+      "Contradictions -> Contradictions": 5,
+      "Contradictions -> Needs & jobs": 1,
+      "Contradictions -> Trust & provenance": 1,
+      "Contradictions -> Unsorted signals": 1,
+      "Needs & jobs -> Needs & jobs": 5,
+      "Needs & jobs -> Trust & provenance": 1,
+      "Needs & jobs -> Unsorted signals": 2,
+      "Trust & provenance -> Needs & jobs": 4,
+      "Trust & provenance -> Trust & provenance": 3,
+      "Trust & provenance -> Unsorted signals": 1,
+      "Workflow friction -> Contradictions": 1,
+      "Workflow friction -> Needs & jobs": 1,
+      "Workflow friction -> Trust & provenance": 1,
+      "Workflow friction -> Unsorted signals": 3,
+      "Workflow friction -> Workflow friction": 2
+    },
+    "correct": 15,
+    "failures": [
+      {
+        "expected": "Trust & provenance",
+        "id": "trust-01",
+        "predicted": "Needs & jobs"
+      },
+      {
+        "expected": "Trust & provenance",
+        "id": "trust-04",
+        "predicted": "Needs & jobs"
+      },
+      {
+        "expected": "Trust & provenance",
+        "id": "trust-05",
+        "predicted": "Needs & jobs"
+      },
+      {
+        "expected": "Trust & provenance",
+        "id": "trust-06",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Trust & provenance",
+        "id": "trust-08",
+        "predicted": "Needs & jobs"
+      },
+      {
+        "expected": "Workflow friction",
+        "id": "friction-01",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Workflow friction",
+        "id": "friction-03",
+        "predicted": "Contradictions"
+      },
+      {
+        "expected": "Workflow friction",
+        "id": "friction-04",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Workflow friction",
+        "id": "friction-05",
+        "predicted": "Trust & provenance"
+      },
+      {
+        "expected": "Workflow friction",
+        "id": "friction-06",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Workflow friction",
+        "id": "friction-08",
+        "predicted": "Needs & jobs"
+      },
+      {
+        "expected": "Needs & jobs",
+        "id": "job-02",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Needs & jobs",
+        "id": "job-03",
+        "predicted": "Trust & provenance"
+      },
+      {
+        "expected": "Needs & jobs",
+        "id": "job-06",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Contradictions",
+        "id": "contra-04",
+        "predicted": "Trust & provenance"
+      },
+      {
+        "expected": "Contradictions",
+        "id": "contra-05",
+        "predicted": "Unsorted signals"
+      },
+      {
+        "expected": "Contradictions",
+        "id": "contra-08",
+        "predicted": "Needs & jobs"
+      }
+    ],
+    "total": 32
+  },
+  "candidate": {
+    "accuracy": 1.0,
+    "confusion": {
+      "Contradictions -> Contradictions": 8,
+      "Needs & jobs -> Needs & jobs": 8,
+      "Trust & provenance -> Trust & provenance": 8,
+      "Workflow friction -> Workflow friction": 8
+    },
+    "correct": 32,
+    "failures": [],
+    "total": 32
+  },
+  "dataset": {
+    "cases": 32,
+    "classes": 4,
+    "path": "evaluation/evidence-classification-cases.jsonl"
+  },
+  "deterministic_repeat_match": true,
+  "experiment": "research-evidence-deterministic-classifier-v1",
+  "failure_taxonomy": [
+    "trust/provenance ambiguity",
+    "workflow-friction ambiguity",
+    "job/need ambiguity",
+    "contradiction cue"
+  ],
+  "generated_at": "2026-09-08T13:22:26.580884+00:00",
+  "git_sha": "5a146d3f99b1157da2b71b2880555d034c5b35fc",
+  "limitations": [
+    "The labeled fixture is small and curated from product-research language; it is not a blinded human annotation study.",
+    "This evaluates deterministic routing only, not external LLM extraction factuality.",
+    "Provider output still requires separate schema/evidence-grounding evaluation when external models are enabled."
+  ],
+  "question": "Does cue scoring reduce first-keyword routing errors without adding nondeterminism?",
+  "repeated_runs": 3
+}
