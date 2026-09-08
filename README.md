@@ -282,6 +282,14 @@ The exact source inspector remains available from every evidence item.
 
 **왜 deterministic mode를 유지하는가?** 외부 모델 없이도 workflow 전체를 관찰할 수 있어야 하며 domain behavior가 생성형 텍스트 뒤에 숨지 않아야 합니다.
 
+## Evaluation evidence / 평가 증빙
+
+The deterministic evidence router now has a versioned classifier experiment instead of relying on a few happy-path examples. The baseline preserves the previous **first matching keyword wins** behavior; the candidate scores cues across four failure categories: trust/provenance ambiguity, workflow friction, jobs/needs, and contradiction signals.
+
+`evaluation/evidence-classification-cases.jsonl` contains 32 curated product-research utterances. On that fixture the baseline classified **15/32 (46.875%)** correctly, while the cue-scoring candidate classified **32/32 (100%)** correctly and produced identical results across 3 repeated runs. The regression suite also runs from both the repository root and the `api/` working directory so the dataset path is not dependent on shell location.
+
+This is deliberately a narrow claim: the fixture is small and curated, not a blinded human annotation study, and it evaluates deterministic routing rather than external-LLM factuality or evidence grounding. Machine-readable results live under `evaluation/results/`.
+
 ## Architecture & Topics / 아키텍처 및 주제
 
 **Architecture / 아키텍처**  

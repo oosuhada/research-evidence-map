@@ -54,7 +54,8 @@ def _clean_title(text: str) -> str:
     return sentence[:220] or "Customer evidence"
 
 
-def _classify(text: str) -> tuple[str, str]:
+def classify_baseline(text: str) -> tuple[str, str]:
+    """Original first-match heuristic retained as an experiment baseline."""
     lower = text.lower()
     if any(token in lower for token in ("but ", "however", "반면", "하지만", "contradict", "disagree")):
         return "Contradiction", "Contradictions"
@@ -65,6 +66,38 @@ def _classify(text: str) -> tuple[str, str]:
     if any(token in lower for token in ("slow", "time", "friction", "귀찮", "느리", "시간")):
         return "Pain Point", "Workflow friction"
     return "Pain Point", "Unsorted signals"
+
+
+def _classify(text: str) -> tuple[str, str]:
+    """Score explicit research cues instead of returning on the first keyword."""
+    lower = re.sub(r"\s+", " ", text.lower())
+    cue_groups = {
+        "Contradictions": (
+            "contradicts", "contradiction", "disagree", "conflicts with", "in contrast",
+            "반면", "상충", "모순", "동의하지", "하지만 실제로",
+        ),
+        "Trust & provenance": (
+            "citation", "citations", "source", "sources", "provenance", "trust", "verify",
+            "evidence attached", "evidence missing", "without evidence",
+            "근거가 없", "근거 없는", "출처", "신뢰", "검증",
+        ),
+        "Workflow friction": (
+            "too slow", "takes too long", "time-consuming", "friction", "manual step",
+            "느리", "시간이 걸", "오래 걸", "귀찮", "수작업", "번거",
+        ),
+        "Needs & jobs": (
+            "want", "need", "trying to", "would like", "goal is", "turn reviewed", "compare", "preserve",
+            "해야", "원하", "필요", "목표", "보고 싶", "모아서", "정하는", "정할",
+        ),
+    }
+    scores = {label: sum(1 for cue in cues if cue in lower) for label, cues in cue_groups.items()}
+    highest = max(scores.values(), default=0)
+    if highest <= 0:
+        return "Pain Point", "Unsorted signals"
+    priority = ("Contradictions", "Trust & provenance", "Workflow friction", "Needs & jobs")
+    cluster = next(label for label in priority if scores[label] == highest)
+    kind = "Contradiction" if cluster == "Contradictions" else "Job to Be Done" if cluster == "Needs & jobs" else "Pain Point"
+    return kind, cluster
 
 
 class DeterministicAdapter:
