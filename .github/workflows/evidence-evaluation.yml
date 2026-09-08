@@ -1,0 +1,47 @@
+name: evidence-evaluation
+
+on:
+  pull_request:
+  push:
+    branches: [main, "feat/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m venv api/.venv
+      - run: api/.venv/bin/python -m pip install -r api/requirements.txt pytest httpx
+      - run: PYTHONPATH=. api/.venv/bin/python -m pytest -q api/tests
+      - run: PYTHONPATH=. api/.venv/bin/python -m evaluation.evidence_classification_eval
+      - name: Enforce classifier regression gate
+        run: |
+          python - <<'PY'
+          import json
+          data=json.load(open('evaluation/results/evidence-classification-v1.json'))
+          assert data['candidate']['accuracy'] > data['baseline']['accuracy']
+          assert data['candidate']['accuracy'] >= 0.90
+          assert data['deterministic_repeat_match'] is True
+          PY
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build

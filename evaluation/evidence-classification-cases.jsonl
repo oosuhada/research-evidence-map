@@ -1,0 +1,32 @@
+{"id":"trust-01","text":"I need citations because I do not trust summaries without a source.","expected_cluster":"Trust & provenance"}
+{"id":"trust-02","text":"Show the source for every research claim so I can verify it.","expected_cluster":"Trust & provenance"}
+{"id":"trust-03","text":"근거와 출처가 없으면 요약을 신뢰하기 어렵다.","expected_cluster":"Trust & provenance"}
+{"id":"trust-04","text":"I want evidence attached to the insight, not in another document.","expected_cluster":"Trust & provenance"}
+{"id":"trust-05","text":"검증 가능한 source locator가 필요해요.","expected_cluster":"Trust & provenance"}
+{"id":"trust-06","text":"The biggest issue is provenance: I cannot tell where this claim came from.","expected_cluster":"Trust & provenance"}
+{"id":"trust-07","text":"출처를 다시 찾느라 시간이 걸려도 핵심 문제는 신뢰할 근거가 없는 것이다.","expected_cluster":"Trust & provenance"}
+{"id":"trust-08","text":"I need to verify citations before sharing the opportunity brief.","expected_cluster":"Trust & provenance"}
+{"id":"friction-01","text":"The manual tagging step takes too long every week.","expected_cluster":"Workflow friction"}
+{"id":"friction-02","text":"인터뷰 정리 과정이 너무 느리고 수작업이 많다.","expected_cluster":"Workflow friction"}
+{"id":"friction-03","text":"I want the export, but the current handoff is time-consuming.","expected_cluster":"Workflow friction"}
+{"id":"friction-04","text":"클러스터를 복사해서 문서로 옮기는 게 번거롭다.","expected_cluster":"Workflow friction"}
+{"id":"friction-05","text":"There is too much friction between evidence review and decision notes.","expected_cluster":"Workflow friction"}
+{"id":"friction-06","text":"검토할 때마다 같은 내용을 다시 입력해서 오래 걸린다.","expected_cluster":"Workflow friction"}
+{"id":"friction-07","text":"A manual step makes the research workflow slow.","expected_cluster":"Workflow friction"}
+{"id":"friction-08","text":"I need faster review because the current process takes too long.","expected_cluster":"Workflow friction"}
+{"id":"job-01","text":"I need to compare three segments before choosing a launch audience.","expected_cluster":"Needs & jobs"}
+{"id":"job-02","text":"팀은 인터뷰에서 반복되는 요구를 한 화면에서 보고 싶다.","expected_cluster":"Needs & jobs"}
+{"id":"job-03","text":"My goal is to turn reviewed evidence into an opportunity brief.","expected_cluster":"Needs & jobs"}
+{"id":"job-04","text":"I am trying to decide which problem deserves another interview round.","expected_cluster":"Needs & jobs"}
+{"id":"job-05","text":"리서처는 선택한 근거만 모아서 공유해야 한다.","expected_cluster":"Needs & jobs"}
+{"id":"job-06","text":"We would like to compare customer groups before prioritization.","expected_cluster":"Needs & jobs"}
+{"id":"job-07","text":"다음 실험에서 어떤 가설을 검증할지 정하는 기능이 필요하다.","expected_cluster":"Needs & jobs"}
+{"id":"job-08","text":"I want to preserve a reviewed snapshot before making a decision.","expected_cluster":"Needs & jobs"}
+{"id":"contra-01","text":"Interview B contradicts the claim that setup is always difficult.","expected_cluster":"Contradictions"}
+{"id":"contra-02","text":"첫 인터뷰와 반면 두 번째 팀은 이 기능이 필요 없다고 했다.","expected_cluster":"Contradictions"}
+{"id":"contra-03","text":"I disagree with the cluster label because this participant described a different problem.","expected_cluster":"Contradictions"}
+{"id":"contra-04","text":"이 근거는 기존 결론과 상충한다.","expected_cluster":"Contradictions"}
+{"id":"contra-05","text":"The new observation conflicts with the earlier opportunity narrative.","expected_cluster":"Contradictions"}
+{"id":"contra-06","text":"하지만 실제로 다른 참가자는 현재 방식으로도 충분하다고 말했다.","expected_cluster":"Contradictions"}
+{"id":"contra-07","text":"There is a contradiction between the support ticket and the interview evidence.","expected_cluster":"Contradictions"}
+{"id":"contra-08","text":"두 소스의 설명이 모순되어 추가 확인이 필요하다.","expected_cluster":"Contradictions"}
